@@ -38,7 +38,7 @@ namespace Hire360WebAPI.Controllers
 
                 if (humanResource == null)
                 {
-                    return Ok(new { status = "Failed", data = humanResource, message = "No HumanResource with id Exsist" });
+                    return Ok(new { status = "Failed", data = humanResource, message = "No HumanResource Id found in the give Id" });
                 }
 
                 return humanResource;
@@ -56,30 +56,29 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutHumanResource(Guid id, HumanResource humanResource)
         {
-            if (id != humanResource.Hrid)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(humanResource).State = EntityState.Modified;
-
             try
             {
+                if (id != humanResource.Hrid)
+                {
+                    return Ok(new { status = "Failed", data = humanResource, message = "Human Resource Id not found" });
+                }
+
+                _context.Entry(humanResource).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!HumanResourceExists(id))
                 {
-                    return NotFound();
+                    return Ok(new { status = "Failed", data = humanResource, messsage = "Human Resource Id is already available" });
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return NoContent();
+            return Ok(new { status = "Failed", data = humanResource, messsage = "Failed to Update the Human Resource" });
         }
 
         // POST: api/HumanResource
@@ -87,26 +86,42 @@ namespace Hire360WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<HumanResource>> PostHumanResource(HumanResource humanResource)
         {
-            _context.HumanResources.Add(humanResource);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.HumanResources.Add(humanResource);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetHumanResource", new { id = humanResource.Hrid }, humanResource);
+                return CreatedAtAction("GetHumanResource", new { id = humanResource.Hrid }, Ok(new { data = humanResource }));
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Failed to create new Human Resource" });
+            }
         }
 
         // DELETE: api/HumanResource/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHumanResource(Guid id)
         {
-            var humanResource = await _context.HumanResources.FindAsync(id);
-            if (humanResource == null)
+            try
             {
-                return NotFound();
+                var humanResource = await _context.HumanResources.FindAsync(id);
+                if (humanResource == null)
+                {
+                    return Ok(new { status = "Failed", data = humanResource, message = "HumanResource Id not found" });
+                }
+
+                _context.HumanResources.Remove(humanResource);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { status = "Success", data = humanResource, messsage = "HumanResource Id has be deleted..." });
             }
-
-            _context.HumanResources.Remove(humanResource);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+             catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete HumanResource" });
+            }
         }
 
         private bool HumanResourceExists(Guid id)
