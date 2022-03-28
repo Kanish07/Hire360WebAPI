@@ -32,14 +32,23 @@ namespace Hire360WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<JobApplied>> GetJobApplied(Guid id)
         {
-            var jobApplied = await _context.JobApplieds.FindAsync(id);
-
-            if (jobApplied == null)
+            try
             {
-                return NotFound();
-            }
+                var jobApplied = await _context.JobApplieds.FindAsync(id);
 
-            return jobApplied;
+                if (jobApplied == null)
+                {
+                    return Ok(new { status = "Failed", data = jobApplied, message = "No jobApplied Id found in the give Id" });
+                }
+
+                return jobApplied;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = "Get jobApplied Failed" });
+
+            }
         }
 
         // PUT: api/JobApplied/5
@@ -47,22 +56,22 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutJobApplied(Guid id, JobApplied jobApplied)
         {
-            if (id != jobApplied.JobAppliedId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(jobApplied).State = EntityState.Modified;
-
             try
             {
+                if (id != jobApplied.JobAppliedId)
+                {
+                    return Ok(new { status = "Failed", data = jobApplied, message = "Job Applied Id not found" });
+                }
+
+                _context.Entry(jobApplied).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!JobAppliedExists(id))
                 {
-                    return NotFound();
+                    return Ok(new { status = "Failed", data = jobApplied, messsage = "Job Applied Id is already available" });
                 }
                 else
                 {
@@ -70,7 +79,7 @@ namespace Hire360WebAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new { status = "Failed", data = jobApplied, messsage = "Failed to Update the Job Applied" });
         }
 
         // POST: api/JobApplied
@@ -78,26 +87,42 @@ namespace Hire360WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<JobApplied>> PostJobApplied(JobApplied jobApplied)
         {
-            _context.JobApplieds.Add(jobApplied);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.JobApplieds.Add(jobApplied);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetJobApplied", new { id = jobApplied.JobAppliedId }, jobApplied);
+                return CreatedAtAction("GetJobApplied", new { id = jobApplied.JobAppliedId }, Ok(new { data = jobApplied }));
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Failed to create new Job Applied" });
+            }
         }
 
         // DELETE: api/JobApplied/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteJobApplied(Guid id)
         {
-            var jobApplied = await _context.JobApplieds.FindAsync(id);
-            if (jobApplied == null)
+            try
             {
-                return NotFound();
+                var jobApplied = await _context.JobApplieds.FindAsync(id);
+                if (jobApplied == null)
+                {
+                    return Ok(new { status = "Failed", data = jobApplied, message = "JobApplieds Id not found" });
+                }
+
+                _context.JobApplieds.Remove(jobApplied);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { status = "Success", data = jobApplied, messsage = "JobApplieds Id has be deleted..." });
             }
-
-            _context.JobApplieds.Remove(jobApplied);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete JobApplieds" });
+            }
         }
 
         private bool JobAppliedExists(Guid id)
