@@ -32,14 +32,23 @@ namespace Hire360WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<HumanResource>> GetHumanResource(Guid id)
         {
-            var humanResource = await _context.HumanResources.FindAsync(id);
-
-            if (humanResource == null)
+            try
             {
-                return NotFound();
-            }
+                var humanResource = await _context.HumanResources.FindAsync(id);
 
-            return humanResource;
+                if (humanResource == null)
+                {
+                    return Ok(new { status = "Failed", data = humanResource, message = "No HumanResource with id Exsist" });
+                }
+
+                return humanResource;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = "Get HumanResource Failed" });
+
+            }
         }
 
         // PUT: api/HumanResource/5
