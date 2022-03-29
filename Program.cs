@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
+using Hire360WebAPI.Helpers;
+using Hire360WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +12,44 @@ builder.Services.AddDbContext<Hire360Context>(o => o.UseSqlServer(builder.Config
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+    options =>
+    {
+        options.AddSecurityDefinition(
+            "Bearer",
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Description = "JWT Authorization header using the Bearer scheme."
+            }
+        );
+        options.AddSecurityRequirement(
+            new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+            {
+                {
+                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    {
+                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] { }
+                }
+            }
+        );
+    }
+);
 builder.Services.AddCors();
 
-
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddScoped<ICandidateServices, CandidateServices>();
+builder.Services.AddScoped<IHumanResourceServices, HumanResourceServices>();
 
 var app = builder.Build();
 
@@ -29,6 +65,9 @@ app.UseAuthorization();
 app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseMiddleware<JwtHelperHR>();
+app.UseMiddleware<JwtHelperCandidate>();
 
 app.MapControllers();
 

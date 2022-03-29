@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Models
 {
@@ -18,7 +19,7 @@ namespace Hire360WebAPI.Models
         public string CompanyName { get; set; } = null!;
         public string City { get; set; } = null!;
         public string? Hrdescription { get; set; }
-        public int UserRole { get; set; }
+        public Role UserRole { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string? Active { get; set; }
 

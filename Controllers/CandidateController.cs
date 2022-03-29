@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
+using Hire360WebAPI.Services;
+using Hire360WebAPI.Helpers.CandidateJWT;
+using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Controllers
 {
@@ -15,14 +18,31 @@ namespace Hire360WebAPI.Controllers
     public class CandidateController : ControllerBase
     {
         private readonly Hire360Context _context;
+        private readonly ICandidateServices _candidateServices;
 
-        public CandidateController(Hire360Context context)
+        public CandidateController(Hire360Context context, ICandidateServices candidateServices)
         {
             _context = context;
+            _candidateServices = candidateServices;
+        }
+
+        // POST: api/candidate/login
+        [HttpPost("login")]
+        public IActionResult Login(AuthRequest model)
+        {
+            var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+            if (candidate == null)
+                return BadRequest(new { message = "Email not found!" });
+            var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
+            if (!verify)
+                return BadRequest(new { message = "Incorrect password!" });
+            var response = _candidateServices.Authenticate(candidate);
+            return Ok(response);
         }
 
         // GET: api/Candidate
         [HttpGet]
+        [Authorize(Role.Candidate)]
         public async Task<ActionResult<IEnumerable<Candidate>>> GetCandidates()
         {
             return await _context.Candidates.ToListAsync();
@@ -51,7 +71,8 @@ namespace Hire360WebAPI.Controllers
             {
                 return BadRequest();
             }
-
+            
+            candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
             _context.Entry(candidate).State = EntityState.Modified;
 
             try
@@ -78,6 +99,7 @@ namespace Hire360WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Candidate>> PostCandidate(Candidate candidate)
         {
+            candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
             _context.Candidates.Add(candidate);
             await _context.SaveChangesAsync();
 
