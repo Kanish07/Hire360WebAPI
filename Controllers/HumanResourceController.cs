@@ -29,16 +29,16 @@ namespace Hire360WebAPI.Controllers
 
         // POST: api/candidate/login
         [HttpPost("login")]
-        public IActionResult Login(AuthRequest model)
+        public IActionResult HrLogin(AuthRequest model)
         {
             try
             {
                 var hr = _context.HumanResources.FirstOrDefault(x => x.Hremail == model.Email);
                 if (hr == null)
-                    return BadRequest(new { message = "Email not found!" });
+                    return BadRequest(new { message = "Account does not exist" });
                 var verify = BCrypt.Net.BCrypt.Verify(model.Password, hr!.Hrpassword);
                 if (!verify)
-                    return BadRequest(new { message = "Incorrect password!" });
+                    return BadRequest(new { message = "Please Enter a correct Email and Password." });
                 var response = _humanResourceServices.Authenticate(hr);
                 return Ok(response);
             }

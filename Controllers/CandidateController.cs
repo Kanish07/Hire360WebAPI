@@ -34,10 +34,10 @@ namespace Hire360WebAPI.Controllers
             {
                 var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
                 if (candidate == null)
-                    return BadRequest(new { message = "Email not found!" });
+                    return BadRequest(new { message = "Account does not exist" });
                 var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
                 if (!verify)
-                    return BadRequest(new { message = "Incorrect password!" });
+                    return BadRequest(new { message = "Please Enter a correct Email and Password." });
                 var response = _candidateServices.Authenticate(candidate);
                 return Ok(response);
             }
