@@ -66,8 +66,7 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseMiddleware<JwtHelperHR>();
-app.UseMiddleware<JwtHelperCandidate>();
+app.UseMiddleware<JwtHelper>();
 
 app.MapControllers();
 

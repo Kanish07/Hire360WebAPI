@@ -10,7 +10,7 @@ namespace Hire360WebAPI.Services;
 
 public interface ICandidateServices
 {
-    AuthResponseCandidate Authenticate(Candidate model);
+    AuthResponse Authenticate(Candidate model);
     IEnumerable<Candidate> GetAll();
     Candidate GetById(Guid Id);
 }
@@ -27,10 +27,10 @@ public class CandidateServices : ICandidateServices
         _appSettings = appSettings.Value;
     }
 
-    public AuthResponseCandidate Authenticate(Candidate candidate)
+    public AuthResponse Authenticate(Candidate candidate)
     {       
         var token = GenerateJwtToken(candidate);
-        return new AuthResponseCandidate(candidate, token);
+        return new AuthResponse(candidate.CandidateId, candidate.CandidateName, candidate.UserRole, token);
     }
 
     public IEnumerable<Candidate> GetAll()

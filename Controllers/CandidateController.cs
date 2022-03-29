@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
 using Hire360WebAPI.Services;
-using Hire360WebAPI.Helpers.CandidateJWT;
+using Hire360WebAPI.Helpers;
 using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Controllers
@@ -50,7 +50,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate
         [HttpGet]
-        [Authorize(Role.Candidate)]
+        [Authorize]
         public async Task<IActionResult> GetAllCandidates()
         {
             try
@@ -67,6 +67,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
+        [Authorize(Role.Candidate)]
         public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
         {
             try

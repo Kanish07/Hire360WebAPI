@@ -1,18 +1,18 @@
 using Hire360WebAPI.Entities;
 namespace Hire360WebAPI.Models;
 
-public class AuthResponseCandidate
+public class AuthResponse
 {
     public Guid Id { get; set; }
     public string? Username { get; set; }
     public Role Role { get; set; }
     public string? Token { get; set; }
 
-    public AuthResponseCandidate(Candidate candidate, string token)
+    public AuthResponse(Guid id, string username, Role role, string token)
     {
-        Id = candidate.CandidateId;
-        Username = candidate.CandidateName;
-        Role = candidate.UserRole;
+        Id = id;
+        Username = username;
+        Role = role;
         Token = token;
     }
 };
