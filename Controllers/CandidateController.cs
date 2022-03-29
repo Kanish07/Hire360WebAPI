@@ -52,14 +52,22 @@ namespace Hire360WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Candidate>> GetCandidate(Guid id)
         {
-            var candidate = await _context.Candidates.FindAsync(id);
-
-            if (candidate == null)
+            try
             {
-                return NotFound();
-            }
+                var candidate = await _context.Candidates.FindAsync(id);
 
-            return candidate;
+                if (candidate == null)
+                {
+                    return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found in the give Id" });
+                }
+
+                return candidate;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = "Get candidate Failed" });
+            }
         }
 
         // PUT: api/Candidate/5
@@ -110,16 +118,24 @@ namespace Hire360WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCandidate(Guid id)
         {
-            var candidate = await _context.Candidates.FindAsync(id);
-            if (candidate == null)
+            try
             {
-                return NotFound();
+                var candidate = await _context.Candidates.FindAsync(id);
+                if (candidate == null)
+                {
+                    return Ok(new { status = "Failed", data = candidate, message = "Candidates Id not found" });
+                }
+
+                _context.Candidates.Remove(candidate);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { status = "Success", data = candidate, messsage = "HumanResource Id has be deleted..." });
             }
-
-            _context.Candidates.Remove(candidate);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete Candidates" });
+            }
         }
 
         private bool CandidateExists(Guid id)

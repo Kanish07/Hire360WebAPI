@@ -32,14 +32,21 @@ namespace Hire360WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Skill>> GetSkill(Guid id)
         {
-            var skill = await _context.Skills.FindAsync(id);
-
-            if (skill == null)
+            try
             {
-                return NotFound();
-            }
+                var skill = await _context.Skills.FindAsync(id);
 
-            return skill;
+                if (skill == null)
+                {
+                    return Ok(new { status = "Failed", data = skill, message = "No Skills Id found in the give Id" });
+                }
+                return skill;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = "Get Skills Failed" });
+            }
         }
 
         // PUT: api/Skill/5
@@ -47,22 +54,22 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSkill(Guid id, Skill skill)
         {
-            if (id != skill.SkillId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(skill).State = EntityState.Modified;
-
             try
             {
+                if (id != skill.SkillId)
+                {
+                    return Ok(new { status = "Failed", data = skill, message = "Skill Id not found" });
+                }
+
+                _context.Entry(skill).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!SkillExists(id))
                 {
-                    return NotFound();
+                    return Ok(new { status = "Failed", data = skill, messsage = "Skill Id is already available" });
                 }
                 else
                 {
@@ -70,7 +77,7 @@ namespace Hire360WebAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new { status = "Failed", data = skill, messsage = "Failed to Update the Skill" });
         }
 
         // POST: api/Skill
@@ -78,26 +85,40 @@ namespace Hire360WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Skill>> PostSkill(Skill skill)
         {
-            _context.Skills.Add(skill);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Skills.Add(skill);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSkill", new { id = skill.SkillId }, skill);
+                return CreatedAtAction("GetSkill", new { id = skill.SkillId }, Ok(new { data = skill }));
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Failed to create new Skill" });
+            }
         }
 
         // DELETE: api/Skill/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSkill(Guid id)
         {
-            var skill = await _context.Skills.FindAsync(id);
-            if (skill == null)
+            try
             {
-                return NotFound();
+                var skill = await _context.Skills.FindAsync(id);
+                if (skill == null)
+                {
+                    return Ok(new { status = "Failed", data = skill, message = "Skills Id not found" });
+                }
+                _context.Skills.Remove(skill);
+                await _context.SaveChangesAsync();
+                return Ok(new { status = "Success", data = skill, messsage = "Skills Id has be deleted..." });
             }
-
-            _context.Skills.Remove(skill);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete Skills" });
+            }
         }
 
         private bool SkillExists(Guid id)

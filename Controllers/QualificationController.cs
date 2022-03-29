@@ -32,14 +32,23 @@ namespace Hire360WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Qualification>> GetQualification(Guid id)
         {
-            var qualification = await _context.Qualifications.FindAsync(id);
-
-            if (qualification == null)
+            try
             {
-                return NotFound();
-            }
+                var qualification = await _context.Qualifications.FindAsync(id);
 
-            return qualification;
+                if (qualification == null)
+                {
+                    return Ok(new { status = "Failed", data = qualification, message = "No Qualifications Id found in the give Id" });
+                }
+
+                return qualification;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = "Get Qualifications Failed" });
+
+            }
         }
 
         // PUT: api/Qualification/5
@@ -47,22 +56,22 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutQualification(Guid id, Qualification qualification)
         {
-            if (id != qualification.QualificationId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(qualification).State = EntityState.Modified;
-
             try
             {
+                if (id != qualification.QualificationId)
+                {
+                    return Ok(new { status = "Failed", data = qualification, message = "Qualification Id not found" });
+                }
+
+                _context.Entry(qualification).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!QualificationExists(id))
                 {
-                    return NotFound();
+                    return Ok(new { status = "Failed", data = qualification, messsage = "Qualification Id is already available" });
                 }
                 else
                 {
@@ -70,7 +79,7 @@ namespace Hire360WebAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new { status = "Failed", data = qualification, messsage = "Failed to Update the Qualification" });
         }
 
         // POST: api/Qualification
@@ -78,26 +87,41 @@ namespace Hire360WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Qualification>> PostQualification(Qualification qualification)
         {
-            _context.Qualifications.Add(qualification);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Qualifications.Add(qualification);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQualification", new { id = qualification.QualificationId }, qualification);
+                return CreatedAtAction("GetQualification", new { id = qualification.QualificationId }, Ok(new { data = qualification }));
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Failed to create new Qualification" });
+            }
         }
 
         // DELETE: api/Qualification/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQualification(Guid id)
         {
-            var qualification = await _context.Qualifications.FindAsync(id);
-            if (qualification == null)
+            try
             {
-                return NotFound();
+                var qualification = await _context.Qualifications.FindAsync(id);
+                if (qualification == null)
+                {
+                    return Ok(new { status = "Failed", data = qualification, message = "Qualification Id not found" });
+                }
+
+                _context.Qualifications.Remove(qualification);
+                await _context.SaveChangesAsync();
+                return Ok(new { status = "Success", data = qualification, messsage = "Qualification Id has be deleted..." });
             }
-
-            _context.Qualifications.Remove(qualification);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete Qualification" });
+            }
         }
 
         private bool QualificationExists(Guid id)
