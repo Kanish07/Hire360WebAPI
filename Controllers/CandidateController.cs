@@ -28,29 +28,46 @@ namespace Hire360WebAPI.Controllers
 
         // POST: api/candidate/login
         [HttpPost("login")]
-        public IActionResult Login(AuthRequest model)
+        public IActionResult CandidateLogin(AuthRequest model)
         {
-            var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
-            if (candidate == null)
-                return BadRequest(new { message = "Email not found!" });
-            var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
-            if (!verify)
-                return BadRequest(new { message = "Incorrect password!" });
-            var response = _candidateServices.Authenticate(candidate);
-            return Ok(response);
+            try
+            {
+                var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+                if (candidate == null)
+                    return BadRequest(new { message = "Email not found!" });
+                var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
+                if (!verify)
+                    return BadRequest(new { message = "Incorrect password!" });
+                var response = _candidateServices.Authenticate(candidate);
+                return Ok(response);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Login Failed" });
+            }
         }
 
         // GET: api/Candidate
         [HttpGet]
         [Authorize(Role.Candidate)]
-        public async Task<ActionResult<IEnumerable<Candidate>>> GetCandidates()
+        public async Task<IActionResult> GetAllCandidates()
         {
-            return await _context.Candidates.ToListAsync();
+            try
+            {
+                var candidate = await _context.Candidates.ToListAsync();
+                return Ok(new { status = "success", data = candidate, message = "Get All Candidate Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Get All Candidate Data Failed" });
+            }
         }
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Candidate>> GetCandidate(Guid id)
+        public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
         {
             try
             {
@@ -58,28 +75,22 @@ namespace Hire360WebAPI.Controllers
 
                 if (candidate == null)
                 {
-                    return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found" });
                 }
-
-                return candidate;
+                return Ok(new { status = "success", data = candidate, message = "Get candidate By Id Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "failed", message = "Get candidate Failed" });
+                return BadRequest(new { status = "failed", message = "Get candidate by Id Failed" });
             }
         }
 
         // PUT: api/Candidate/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCandidate(Guid id, Candidate candidate)
+        public async Task<IActionResult> UpdateCandidateById(Guid id, Candidate candidate)
         {
-            if (id != candidate.CandidateId)
-            {
-                return BadRequest();
-            }
-            
             candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
             _context.Entry(candidate).State = EntityState.Modified;
 
@@ -87,54 +98,64 @@ namespace Hire360WebAPI.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!CandidateExists(id))
                 {
-                    return NotFound();
+                    Console.WriteLine(ex);
+                    return NotFound(new { status = "failed", message = "No Candidate Found" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Candidate By Id Failed" });
                 }
             }
-
-            return NoContent();
+            return Ok(new { status = "success", message = "Details Updated" });
         }
 
         // POST: api/Candidate
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Candidate>> PostCandidate(Candidate candidate)
+        public async Task<ActionResult<Candidate>> RegisterCandidate(Candidate candidate)
         {
-            candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
-            _context.Candidates.Add(candidate);
-            await _context.SaveChangesAsync();
+            try
+            {
+                candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
+                _context.Candidates.Add(candidate);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCandidate", new { id = candidate.CandidateId }, candidate);
+                return CreatedAtAction("GetCandidate", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "User registration Failed" });
+            }
+
         }
 
         // DELETE: api/Candidate/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCandidate(Guid id)
+        public async Task<IActionResult> DeleteCandidateById(Guid id)
         {
             try
             {
                 var candidate = await _context.Candidates.FindAsync(id);
                 if (candidate == null)
                 {
-                    return Ok(new { status = "Failed", data = candidate, message = "Candidates Id not found" });
+                    return Ok(new { status = "Failed", message = "Candidate Id not found" });
                 }
 
                 _context.Candidates.Remove(candidate);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", data = candidate, messsage = "HumanResource Id has be deleted..." });
+                return Ok(new { status = "Success", messsage = "Candidate Deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete Candidates" });
+                return BadRequest(new { status = "Failed", message = "Faild to delete Candidate" });
             }
         }
 
