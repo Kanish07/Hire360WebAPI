@@ -33,6 +33,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Get All Skills Data Failed" });
             }
         }
@@ -54,6 +55,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get Skills Failed" });
             }
         }
@@ -73,11 +75,13 @@ namespace Hire360WebAPI.Controllers
                 if (!SkillExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return Ok(new { status = "Failed", data = skill, messsage = "Skill Id not available" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Skills By Id Failed" }); ;
                 }
             }
@@ -95,11 +99,12 @@ namespace Hire360WebAPI.Controllers
                 _context.Skills.Add(skill);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkill", new { id = skill.SkillId }, new { status = "Success", data = skill, message = "Skills Applied Successfully" });
+                return CreatedAtAction("GetSkillById", new { id = skill.SkillId }, new { status = "Success", data = skill, message = "Skills Applied Successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Failed to create new Skill" });
             }
         }
@@ -122,6 +127,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Skills" });
             }
         }

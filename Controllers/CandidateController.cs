@@ -44,6 +44,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Login Failed" });
             }
         }
@@ -61,6 +62,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Get All Candidate Data Failed" });
             }
         }
@@ -82,6 +84,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get candidate by Id Failed" });
             }
         }
@@ -103,11 +106,13 @@ namespace Hire360WebAPI.Controllers
                 if (!CandidateExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return NotFound(new { status = "failed", message = "No Candidate Found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Candidate By Id Failed" });
                 }
             }
@@ -125,11 +130,12 @@ namespace Hire360WebAPI.Controllers
                 _context.Candidates.Add(candidate);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCandidate", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
+                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "User registration Failed" });
             }
 
@@ -155,6 +161,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Candidate" });
             }
         }

@@ -45,6 +45,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Login Failed" });
             }
         }
@@ -62,6 +63,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return Ok(new { status = "Failed", message = "Get all Human Resources data failed" });
             }
         }
@@ -85,6 +87,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get Human Resource by Id Failed" });
 
             }
@@ -106,11 +109,13 @@ namespace Hire360WebAPI.Controllers
                 if (!HumanResourceExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return Ok(new { status = "Failed", data = humanResource, messsage = "NO Human Resource Found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return Ok(new { status = "Failed", data = humanResource, serverMessage = ex.Message, messsage = "Update Human Resource by Id failed" });
                 }
             }
@@ -128,11 +133,12 @@ namespace Hire360WebAPI.Controllers
                 _context.HumanResources.Add(humanResource);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetHumanResource", new { id = humanResource.Hrid }, new { status = "Success", data = humanResource, message = "Human registration successful" });
+                return CreatedAtAction("GetAllHumanResources", new { id = humanResource.Hrid }, new { status = "Success", data = humanResource, message = "Human registration successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", serverMessage = ex.Message, message = "Human Resource registration Failed" });
             }
         }
@@ -157,6 +163,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Human Resource" });
             }
         }

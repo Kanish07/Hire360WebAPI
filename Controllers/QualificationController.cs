@@ -33,6 +33,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Get All qualification Data Failed" });
             }
         }
@@ -49,12 +50,12 @@ namespace Hire360WebAPI.Controllers
                 {
                     return Ok(new { status = "Failed", data = qualification, message = "No Qualifications Id found" });
                 }
-
                 return Ok(new { status = "success", data = qualification, message = "Get Qualifications By Id Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get Qualifications Failed" });
 
             }
@@ -75,11 +76,13 @@ namespace Hire360WebAPI.Controllers
                 if (!QualificationExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return Ok(new { status = "Failed", data = qualification, messsage = "Qualification Id not available" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update qualification By Id Failed" });
                 }
             }
@@ -96,11 +99,12 @@ namespace Hire360WebAPI.Controllers
                 _context.Qualifications.Add(qualification);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetQualification", new { id = qualification.QualificationId }, new { status = "Success", data = qualification, message = "qualification Applied Successfully" });
+                return CreatedAtAction("GetQualificationById", new { id = qualification.QualificationId }, new { status = "Success", data = qualification, message = "qualification Applied Successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Failed to create new Qualification" });
             }
         }
@@ -124,6 +128,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Qualification" });
             }
         }

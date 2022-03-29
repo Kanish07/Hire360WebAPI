@@ -33,6 +33,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Get All Job Applied Data Failed" });
             }
         }
@@ -55,8 +56,8 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get job Applied by Id Failed" });
-
             }
         }
 
@@ -75,11 +76,13 @@ namespace Hire360WebAPI.Controllers
                 if (!JobAppliedExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return Ok(new { status = "Failed", data = jobApplied, messsage = "Job Applied Id not available" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Job Applied By Id Failed" });
                 }
             }
@@ -93,15 +96,14 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-
                 _context.JobApplieds.Add(jobApplied);
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetJobApplied", new { id = jobApplied.JobAppliedId }, new { status = "Success", data = jobApplied, message = "Job Applied Successfully" });
+                return CreatedAtAction("GetAllJobApplieds", new { id = jobApplied.JobAppliedId }, new { status = "Success", data = jobApplied, message = "Job Applied Successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Failed to create new Job Applied" });
             }
         }
@@ -126,6 +128,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Job Applieds" });
             }
         }
