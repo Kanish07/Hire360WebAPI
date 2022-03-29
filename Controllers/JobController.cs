@@ -23,14 +23,23 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Job
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Job>>> GetJobs()
+        public async Task<IActionResult> GetAllJobs()
         {
-            return await _context.Jobs.ToListAsync();
+            try
+            {
+                var job = await _context.JobApplieds.ToListAsync();
+                return Ok(new { status = "Success", data = job, message = "Get All the Job Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Get All Job Data Failed" });
+            }
         }
 
         // GET: api/Job/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Job>> GetJob(Guid id)
+        public async Task<ActionResult<Job>> GetJobById(Guid id)
         {
             try
             {
@@ -38,15 +47,15 @@ namespace Hire360WebAPI.Controllers
 
                 if (job == null)
                 {
-                    return Ok(new { status = "Failed", data = job, message = "No Job Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = job, message = "No Job Id found " });
                 }
 
-                return job;
+                return Ok(new { status = "success", data = job, message = "Get job Applied By Id Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "failed", message = "Get Job Failed" });
+                return BadRequest(new { status = "failed", message = "Get job Applied by Id Failed" });
 
             }
         }
@@ -54,28 +63,24 @@ namespace Hire360WebAPI.Controllers
         // PUT: api/Job/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutJob(Guid id, Job job)
+        public async Task<IActionResult> UpdateJobById(Guid id, Job job)
         {
+            _context.Entry(job).State = EntityState.Modified;
             try
             {
-                if (id != job.JobId)
-                {
-                    return Ok(new { status = "Failed", data = job, message = "Job Id not found" });
-                }
-
-                _context.Entry(job).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!JobExists(id))
                 {
+                    Console.WriteLine(ex);
                     return Ok(new { status = "Failed", data = job, messsage = "Job Id is already available" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Job By Id Failed" });
                 }
             }
             return Ok(new { status = "Failed", data = job, messsage = "Failed to Update the Job" });
@@ -84,14 +89,14 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Job
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Job>> PostJob(Job job)
+        public async Task<ActionResult<Job>> RegisterJob(Job job)
         {
             try
             {
                 _context.Jobs.Add(job);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetJob", new { id = job.JobId }, Ok(new { data = job }));
+                return CreatedAtAction("GetJob", new { id = job.JobId }, new { status = "Success", data = job, message = "Job registered Successfully" });
             }
             catch (System.Exception ex)
             {
@@ -102,7 +107,7 @@ namespace Hire360WebAPI.Controllers
 
         // DELETE: api/Job/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteJob(Guid id)
+        public async Task<IActionResult> DeleteJobById(Guid id)
         {
             try
             {
@@ -114,7 +119,7 @@ namespace Hire360WebAPI.Controllers
 
                 _context.Jobs.Remove(job);
                 await _context.SaveChangesAsync();
-                return Ok(new { status = "Success", data = job, messsage = "Job Id has be deleted..." });
+                return Ok(new { status = "Success", data = job, messsage = "Job deleted..." });
             }
             catch (System.Exception ex)
             {
