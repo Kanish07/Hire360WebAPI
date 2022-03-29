@@ -23,14 +23,23 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/SkillSet
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SkillSet>>> GetSkillSets()
+        public async Task<IActionResult> GetAllSkillSets()
         {
-            return await _context.SkillSets.ToListAsync();
+            try
+            {
+                var skillSet = await _context.JobApplieds.ToListAsync();
+                return Ok(new { status = "Success", data = skillSet, message = "Get All the skillSet Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Get All skillSet Data Failed" });
+            }
         }
 
         // GET: api/SkillSet/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SkillSet>> GetSkillSet(Guid id)
+        public async Task<ActionResult<SkillSet>> GetSkillSetById(Guid id)
         {
             try
             {
@@ -38,10 +47,10 @@ namespace Hire360WebAPI.Controllers
 
                 if (skillSet == null)
                 {
-                    return Ok(new { status = "Failed", data = skillSet, message = "No SkillSets Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = skillSet, message = "No SkillSets Id found" });
                 }
 
-                return skillSet;
+                return Ok(new { status = "success", data = skillSet, message = "Get SkillSets By Id Successful" });
             }
             catch (System.Exception ex)
             {
@@ -53,44 +62,41 @@ namespace Hire360WebAPI.Controllers
         // PUT: api/SkillSet/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSkillSet(Guid id, SkillSet skillSet)
+        public async Task<IActionResult> UpdateSkillSetById(Guid id, SkillSet skillSet)
         {
+            _context.Entry(skillSet).State = EntityState.Modified;
             try
             {
-                if (id != skillSet.SkillSetId)
-                {
-                    return Ok(new { status = "Failed", data = skillSet, message = "SkillSet Id not found" });
-                }
-
-                _context.Entry(skillSet).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!SkillSetExists(id))
                 {
-                    return Ok(new { status = "Failed", data = skillSet, messsage = "SkillSet Id is already available" });
+                    Console.WriteLine(ex);
+
+                    return Ok(new { status = "Failed", data = skillSet, messsage = "SkillSet Id not available" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update SkillSet By Id Failed" }); ;
                 }
             }
-            return Ok(new { status = "Failed", data = skillSet, messsage = "Failed to Update the SkillSet" });
+            return Ok(new { status = "Success", data = skillSet, messsage = "Details Updated" });
         }
 
         // POST: api/SkillSet
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<SkillSet>> PostSkillSet(SkillSet skillSet)
+        public async Task<ActionResult<SkillSet>> RegisterSkillSet(SkillSet skillSet)
         {
             try
             {
                 _context.SkillSets.Add(skillSet);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkillSet", new { id = skillSet.SkillSetId }, Ok(new { data = skillSet }));
+                return CreatedAtAction("GetSkillSet", new { id = skillSet.SkillSetId }, new { status = "Success", data = skillSet, message = "SkillSet Successfully" });
             }
             catch (System.Exception ex)
             {
@@ -101,7 +107,7 @@ namespace Hire360WebAPI.Controllers
 
         // DELETE: api/SkillSet/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSkillSet(Guid id)
+        public async Task<IActionResult> DeleteSkillSetById(Guid id)
         {
             try
             {
@@ -114,7 +120,7 @@ namespace Hire360WebAPI.Controllers
                 _context.SkillSets.Remove(skillSet);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", data = skillSet, messsage = "SkillSets Id has be deleted..." });
+                return Ok(new { status = "Success", data = skillSet, messsage = "SkillSets deleted" });
             }
             catch (System.Exception ex)
             {
