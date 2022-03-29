@@ -37,16 +37,17 @@ namespace Hire360WebAPI.Controllers
             {
                 var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
                 if (candidate == null)
-                    return BadRequest(new { message = "Email not found!" });
+                    return BadRequest(new { message = "Account does not exist" });
                 var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
                 if (!verify)
-                    return BadRequest(new { message = "Incorrect password!" });
+                    return BadRequest(new { message = "Please Enter a correct Email and Password." });
                 var response = _candidateServices.Authenticate(candidate);
                 return Ok(response);
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Login Failed" });
             }
         }
@@ -64,6 +65,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Get All Candidate Data Failed" });
             }
         }
@@ -91,6 +93,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Get candidate by Id Failed" });
             }
         }
@@ -112,11 +115,13 @@ namespace Hire360WebAPI.Controllers
                 if (!CandidateExists(id))
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return NotFound(new { status = "failed", message = "No Candidate Found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Candidate By Id Failed" });
                 }
             }
@@ -134,11 +139,13 @@ namespace Hire360WebAPI.Controllers
                 _context.Candidates.Add(candidate);
                 await _context.SaveChangesAsync();
                 await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
+
                 return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "User registration Failed" });
             }
 
@@ -164,6 +171,7 @@ namespace Hire360WebAPI.Controllers
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Faild to delete Candidate" });
             }
         }

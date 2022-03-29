@@ -23,14 +23,24 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/JobApplied
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<JobApplied>>> GetJobApplieds()
+        public async Task<IActionResult> GetAllJobApplieds()
         {
-            return await _context.JobApplieds.ToListAsync();
+            try
+            {
+                var jobApplied = await _context.JobApplieds.ToListAsync();
+                return Ok(new { status = "Success", data = jobApplied, message = "Get All the Job Applied Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "Failed", message = "Get All Job Applied Data Failed" });
+            }
         }
 
         // GET: api/JobApplied/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<JobApplied>> GetJobApplied(Guid id)
+        public async Task<ActionResult<JobApplied>> GetJobAppliedById(Guid id)
         {
             try
             {
@@ -38,72 +48,69 @@ namespace Hire360WebAPI.Controllers
 
                 if (jobApplied == null)
                 {
-                    return Ok(new { status = "Failed", data = jobApplied, message = "No jobApplied Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = jobApplied, message = "No job Applied Id found" });
                 }
 
-                return jobApplied;
+                return Ok(new { status = "success", data = jobApplied, message = "Get job Applied By Id Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "failed", message = "Get jobApplied Failed" });
-
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Get job Applied by Id Failed" });
             }
         }
 
         // PUT: api/JobApplied/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutJobApplied(Guid id, JobApplied jobApplied)
+        public async Task<IActionResult> UpdateJobAppliedById(Guid id, JobApplied jobApplied)
         {
+            _context.Entry(jobApplied).State = EntityState.Modified;
             try
             {
-                if (id != jobApplied.JobAppliedId)
-                {
-                    return Ok(new { status = "Failed", data = jobApplied, message = "Job Applied Id not found" });
-                }
-
-                _context.Entry(jobApplied).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!JobAppliedExists(id))
                 {
-                    return Ok(new { status = "Failed", data = jobApplied, messsage = "Job Applied Id is already available" });
+                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return Ok(new { status = "Failed", data = jobApplied, messsage = "Job Applied Id not available" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Job Applied By Id Failed" });
                 }
             }
-
-            return Ok(new { status = "Failed", data = jobApplied, messsage = "Failed to Update the Job Applied" });
+            return Ok(new { status = "Success", messsage = "Details Updated" });
         }
 
         // POST: api/JobApplied
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<JobApplied>> PostJobApplied(JobApplied jobApplied)
+        public async Task<ActionResult<JobApplied>> RegisterJobApplied(JobApplied jobApplied)
         {
             try
             {
                 _context.JobApplieds.Add(jobApplied);
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetJobApplied", new { id = jobApplied.JobAppliedId }, Ok(new { data = jobApplied }));
+                return CreatedAtAction("GetAllJobApplieds", new { id = jobApplied.JobAppliedId }, new { status = "Success", data = jobApplied, message = "Job Applied Successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = "Failed to create new Job Applied" });
             }
         }
 
         // DELETE: api/JobApplied/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteJobApplied(Guid id)
+        public async Task<IActionResult> DeleteJobAppliedById(Guid id)
         {
             try
             {
@@ -116,12 +123,13 @@ namespace Hire360WebAPI.Controllers
                 _context.JobApplieds.Remove(jobApplied);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", data = jobApplied, messsage = "JobApplieds Id has be deleted..." });
+                return Ok(new { status = "Success", data = jobApplied, messsage = "JobApplieds deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete JobApplieds" });
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete Job Applieds" });
             }
         }
 

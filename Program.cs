@@ -67,6 +67,21 @@ builder.Services.AddScoped<IHumanResourceServices, HumanResourceServices>();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailService, MailService>();
 
+ Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            // Add the following line:
+            webBuilder.UseSentry(o =>
+            {
+                o.Dsn = "https://a2424045248b4103b33195b4fa5746ec@o1181351.ingest.sentry.io/6294675";
+                // When configuring for the first time, to see what the SDK is doing:
+                o.Debug = true;
+                // Set TracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+                // We recommend adjusting this value in production.
+                o.TracesSampleRate = 1.0;
+            });
+        });
+builder.WebHost.UseSentry();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -81,6 +96,7 @@ app.UseAuthorization();
 app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseSentryTracing();
 
 app.UseMiddleware<JwtHelper>();
 

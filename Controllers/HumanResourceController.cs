@@ -29,30 +29,49 @@ namespace Hire360WebAPI.Controllers
 
         // POST: api/candidate/login
         [HttpPost("login")]
-        public IActionResult Login(AuthRequest model)
+        public IActionResult HrLogin(AuthRequest model)
         {
-            var hr = _context.HumanResources.FirstOrDefault(x => x.Hremail == model.Email);
-            if (hr == null)
-                return BadRequest(new { message = "Email not found!" });
-            var verify = BCrypt.Net.BCrypt.Verify(model.Password, hr!.Hrpassword);
-            if (!verify)
-                return BadRequest(new { message = "Incorrect password!" });
-            var response = _humanResourceServices.Authenticate(hr);
-            return Ok(response);
+            try
+            {
+                var hr = _context.HumanResources.FirstOrDefault(x => x.Hremail == model.Email);
+                if (hr == null)
+                    return BadRequest(new { message = "Account does not exist" });
+                var verify = BCrypt.Net.BCrypt.Verify(model.Password, hr!.Hrpassword);
+                if (!verify)
+                    return BadRequest(new { message = "Please Enter a correct Email and Password." });
+                var response = _humanResourceServices.Authenticate(hr);
+                return Ok(response);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "Failed", message = "Login Failed" });
+            }
         }
 
         // GET: api/HumanResource
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<HumanResource>>> GetHumanResources()
+        public async Task<IActionResult> GetAllHumanResources()
         {
-            return await _context.HumanResources.ToListAsync();
+            try
+            {
+                var humanResource = await _context.HumanResources.ToListAsync();
+                return Ok(new { status = "Success", data = humanResource, message = "Get All Human Resources" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return Ok(new { status = "Failed", message = "Get all Human Resources data failed" });
+            }
         }
 
         // GET: api/HumanResource/5
         [HttpGet("{id}")]
         [Authorize(Role.HR)]
-        public async Task<ActionResult<HumanResource>> GetHumanResource(Guid id)
+        public async Task<ActionResult<HumanResource>> GetHumanResourceById(Guid id)
         {
             try
             {
@@ -60,15 +79,16 @@ namespace Hire360WebAPI.Controllers
 
                 if (humanResource == null)
                 {
-                    return Ok(new { status = "Failed", data = humanResource, message = "No HumanResource Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = humanResource, message = "No Human Resource Id found" });
                 }
 
-                return humanResource;
+                return Ok(new { status = "success", data = humanResource, message = "Get Human Resource By Id Successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "failed", message = "Get HumanResource Failed" });
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Get Human Resource by Id Failed" });
 
             }
         }
@@ -76,38 +96,36 @@ namespace Hire360WebAPI.Controllers
         // PUT: api/HumanResource/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHumanResource(Guid id, HumanResource humanResource)
+        public async Task<IActionResult> UpdateHumanResourceById(Guid id, HumanResource humanResource)
         {
+            humanResource.Hrpassword = BCrypt.Net.BCrypt.HashPassword(humanResource.Hrpassword);
+            _context.Entry(humanResource).State = EntityState.Modified;
             try
             {
-                if (id != humanResource.Hrid)
-                {
-                    return Ok(new { status = "Failed", data = humanResource, message = "Human Resource Id not found" });
-                }
-
-                humanResource.Hrpassword = BCrypt.Net.BCrypt.HashPassword(humanResource.Hrpassword);
-                _context.Entry(humanResource).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!HumanResourceExists(id))
                 {
-                    return Ok(new { status = "Failed", data = humanResource, messsage = "Human Resource Id is already available" });
+                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return Ok(new { status = "Failed", data = humanResource, messsage = "NO Human Resource Found" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return Ok(new { status = "Failed", data = humanResource, serverMessage = ex.Message, messsage = "Update Human Resource by Id failed" });
                 }
             }
-            return Ok(new { status = "Failed", data = humanResource, messsage = "Failed to Update the Human Resource" });
+            return Ok(new { status = "Success", messsage = "Details Updated" });
         }
 
         // POST: api/HumanResource
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<HumanResource>> PostHumanResource(HumanResource humanResource)
+        public async Task<ActionResult<HumanResource>> RegisterHumanResource(HumanResource humanResource)
         {
             try
             {
@@ -115,36 +133,38 @@ namespace Hire360WebAPI.Controllers
                 _context.HumanResources.Add(humanResource);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetHumanResource", new { id = humanResource.Hrid }, Ok(new { data = humanResource }));
+                return CreatedAtAction("GetAllHumanResources", new { id = humanResource.Hrid }, new { status = "Success", data = humanResource, message = "Human registration successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "Failed", message = "Failed to create new Human Resource" });
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "Failed", serverMessage = ex.Message, message = "Human Resource registration Failed" });
             }
         }
 
         // DELETE: api/HumanResource/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHumanResource(Guid id)
+        public async Task<IActionResult> DeleteHumanResourceById(Guid id)
         {
             try
             {
                 var humanResource = await _context.HumanResources.FindAsync(id);
                 if (humanResource == null)
                 {
-                    return Ok(new { status = "Failed", data = humanResource, message = "HumanResource Id not found" });
+                    return Ok(new { status = "Failed", message = "Human Resource Id not found" });
                 }
 
                 _context.HumanResources.Remove(humanResource);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", data = humanResource, messsage = "HumanResource Id has be deleted..." });
+                return Ok(new { status = "Success", messsage = "Human Resource deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete HumanResource" });
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "Failed", message = "Faild to delete Human Resource" });
             }
         }
 
