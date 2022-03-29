@@ -23,14 +23,23 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Skill
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Skill>>> GetSkills()
+        public async Task<IActionResult> GetAllSkills()
         {
-            return await _context.Skills.ToListAsync();
+            try
+            {
+                var skill = await _context.JobApplieds.ToListAsync();
+                return Ok(new { status = "Success", data = skill, message = "Get All the Skills Successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "Failed", message = "Get All Skills Data Failed" });
+            }
         }
 
         // GET: api/Skill/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Skill>> GetSkill(Guid id)
+        public async Task<ActionResult<Skill>> GetSkillById(Guid id)
         {
             try
             {
@@ -38,9 +47,9 @@ namespace Hire360WebAPI.Controllers
 
                 if (skill == null)
                 {
-                    return Ok(new { status = "Failed", data = skill, message = "No Skills Id found in the give Id" });
+                    return Ok(new { status = "Failed", data = skill, message = "No Skills Id found" });
                 }
-                return skill;
+                return Ok(new { status = "success", data = skill, message = "Get Skills By Id Successful" });
             }
             catch (System.Exception ex)
             {
@@ -52,28 +61,24 @@ namespace Hire360WebAPI.Controllers
         // PUT: api/Skill/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSkill(Guid id, Skill skill)
+        public async Task<IActionResult> UpdateSkillById(Guid id, Skill skill)
         {
+            _context.Entry(skill).State = EntityState.Modified;
             try
             {
-                if (id != skill.SkillId)
-                {
-                    return Ok(new { status = "Failed", data = skill, message = "Skill Id not found" });
-                }
-
-                _context.Entry(skill).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!SkillExists(id))
                 {
-                    return Ok(new { status = "Failed", data = skill, messsage = "Skill Id is already available" });
+                    Console.WriteLine(ex);
+                    return Ok(new { status = "Failed", data = skill, messsage = "Skill Id not available" });
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Skills By Id Failed" }); ;
                 }
             }
 
@@ -83,14 +88,14 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Skill
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Skill>> PostSkill(Skill skill)
+        public async Task<ActionResult<Skill>> RegisterSkill(Skill skill)
         {
             try
             {
                 _context.Skills.Add(skill);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkill", new { id = skill.SkillId }, Ok(new { data = skill }));
+                return CreatedAtAction("GetSkill", new { id = skill.SkillId }, new { status = "Success", data = skill, message = "Skills Applied Successfully" });
             }
             catch (System.Exception ex)
             {
@@ -101,7 +106,7 @@ namespace Hire360WebAPI.Controllers
 
         // DELETE: api/Skill/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSkill(Guid id)
+        public async Task<IActionResult> DeleteSkillById(Guid id)
         {
             try
             {
@@ -112,7 +117,7 @@ namespace Hire360WebAPI.Controllers
                 }
                 _context.Skills.Remove(skill);
                 await _context.SaveChangesAsync();
-                return Ok(new { status = "Success", data = skill, messsage = "Skills Id has be deleted..." });
+                return Ok(new { status = "Success", data = skill, messsage = "Skills deleted" });
             }
             catch (System.Exception ex)
             {
