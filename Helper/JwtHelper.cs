@@ -3,30 +3,31 @@ using System.Text;
 using Hire360WebAPI.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Hire360WebAPI.Models;
 
 namespace Hire360WebAPI.Helpers;
 
-public class JwtHelperHR
+public class JwtHelper
 {
     private readonly RequestDelegate? _next;
     private readonly AppSettings? _appSettings;
 
-    public JwtHelperHR(RequestDelegate next, IOptions<AppSettings> appsettings)
+    public JwtHelper(RequestDelegate next, IOptions<AppSettings> appsettings)
     {
         _next = next;
         _appSettings = appsettings.Value;
     }
 
-    public async Task Invoke(HttpContext context, IHumanResourceServices humanResourceServices)
+    public async Task Invoke(HttpContext context, IHumanResourceServices humanResourceServices, ICandidateServices candidateServices)
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         if (token != null)
-            attachUserToContext(humanResourceServices, context, token);
+            attachUserToContext(humanResourceServices, candidateServices, context, token);
         await _next!(context);
     }
 
-    private void attachUserToContext(IHumanResourceServices humanResourceServices, HttpContext context, string token)
+    private void attachUserToContext(IHumanResourceServices humanResourceServices, ICandidateServices candidateServices, HttpContext context, string token)
     {
         try
         {
@@ -48,7 +49,14 @@ public class JwtHelperHR
             var jwtToken = (JwtSecurityToken)validateToken;
             var userID = Guid.Parse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")!.Value);
 
-            context.Items["HR"] = humanResourceServices.GetById(userID);
+            var hr = humanResourceServices.GetById(userID);
+
+            if(hr != null)
+                context.Items["User"] = new AuthResponse(hr.Hrid, hr.Hrname, hr.UserRole, "");
+            else{
+                var candidate = candidateServices.GetById(userID);
+                context.Items["User"] = new AuthResponse(candidate.CandidateId, candidate.CandidateName, candidate.UserRole, "");
+            }
         }
         catch (System.Exception ex)
         {

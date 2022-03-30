@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
 using Hire360WebAPI.Services;
-using Hire360WebAPI.Helpers.CandidateJWT;
+using Hire360WebAPI.Helpers;
 using Hire360WebAPI.Entities;
+using MimeKit;
 
 namespace Hire360WebAPI.Controllers
 {
@@ -19,11 +20,13 @@ namespace Hire360WebAPI.Controllers
     {
         private readonly Hire360Context _context;
         private readonly ICandidateServices _candidateServices;
+        private readonly IMailService mailService;
 
-        public CandidateController(Hire360Context context, ICandidateServices candidateServices)
+        public CandidateController(Hire360Context context, ICandidateServices candidateServices, IMailService mailService)
         {
             _context = context;
             _candidateServices = candidateServices;
+            this.mailService = mailService;
         }
 
         // POST: api/candidate/login
@@ -51,7 +54,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate
         [HttpGet]
-        [Authorize(Role.Candidate)]
+        [Authorize]
         public async Task<IActionResult> GetAllCandidates()
         {
             try
@@ -69,6 +72,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
+        [Authorize(Role.Candidate)]
         public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
         {
             try
@@ -79,6 +83,11 @@ namespace Hire360WebAPI.Controllers
                 {
                     return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found" });
                 }
+
+                var body = $"<h1>Hi {candidate.CandidateName}</h1><br><h3> Greetings from Hire360, Do check out the latest job postings on our site. Have a great day!</h3><br><br>";
+                var subject = "New Job Feeds Available";
+
+                await mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
                 return Ok(new { status = "success", data = candidate, message = "Get candidate By Id Successful" });
             }
             catch (System.Exception ex)
@@ -130,6 +139,7 @@ namespace Hire360WebAPI.Controllers
                 _context.Candidates.Add(candidate);
                 await _context.SaveChangesAsync();
 
+                await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
                 return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)

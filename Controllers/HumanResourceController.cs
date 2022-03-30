@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
 using Hire360WebAPI.Services;
-using Hire360WebAPI.Helpers.HRJWT;
+using Hire360WebAPI.Helpers;
 using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Controllers

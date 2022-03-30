@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Hire360WebAPI.Models;
 using Hire360WebAPI.Helpers;
 using Hire360WebAPI.Services;
+using Hire360WebAPI.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
     options =>
     {
+        options.SwaggerDoc(
+            "v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "Hire360 API",
+                Description = "Hire360 RESTful APIs",
+                Contact = new OpenApiContact
+                {
+                    Name = "Hire360",
+                    Email = "contacts.hire360@gmail.com",
+                }
+            });
         options.AddSecurityDefinition(
             "Bearer",
             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -65,6 +79,9 @@ builder.Services.AddScoped<IHumanResourceServices, HumanResourceServices>();
             });
         });
 builder.WebHost.UseSentry();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddTransient<IMailService, MailService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -81,8 +98,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseSentryTracing();
 
-app.UseMiddleware<JwtHelperHR>();
-app.UseMiddleware<JwtHelperCandidate>();
+app.UseMiddleware<JwtHelper>();
 
 app.MapControllers();
 

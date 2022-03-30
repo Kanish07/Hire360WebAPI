@@ -10,7 +10,7 @@ namespace Hire360WebAPI.Services;
 
 public interface IHumanResourceServices
 {
-    AuthResponseHR Authenticate(HumanResource model);
+    AuthResponse Authenticate(HumanResource model);
     IEnumerable<HumanResource> GetAll();
     HumanResource GetById(Guid Id);
 }
@@ -27,10 +27,10 @@ public class HumanResourceServices : IHumanResourceServices
         _appSettings = appSettings.Value;
     }
 
-    public AuthResponseHR Authenticate(HumanResource humanResource)
+    public AuthResponse Authenticate(HumanResource humanResource)
     {       
         var token = GenerateJwtToken(humanResource);
-        return new AuthResponseHR(humanResource, token);
+        return new AuthResponse(humanResource.Hrid, humanResource.Hrname, humanResource.UserRole, token);
     }
 
     public IEnumerable<HumanResource> GetAll()
