@@ -52,7 +52,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/HumanResource
         [HttpGet]
-        [Authorize]
+        // [Authorize]
         public async Task<IActionResult> GetAllHumanResources()
         {
             try
@@ -70,7 +70,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/HumanResource/5
         [HttpGet("{id}")]
-        [Authorize(Role.HR)]
+        // [Authorize(Role.HR)]
         public async Task<ActionResult<HumanResource>> GetHumanResourceById(Guid id)
         {
             try

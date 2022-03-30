@@ -54,7 +54,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate
         [HttpGet]
-        [Authorize]
+        // [Authorize]
         public async Task<IActionResult> GetAllCandidates()
         {
             try
@@ -72,7 +72,7 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
-        [Authorize(Role.Candidate)]
+        // [Authorize(Role.Candidate)]
         public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
         {
             try
