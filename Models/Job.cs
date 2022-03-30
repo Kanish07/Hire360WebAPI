@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Hire360WebAPI.Models
 {
@@ -21,6 +22,7 @@ namespace Hire360WebAPI.Models
         public string? Active { get; set; }
 
         public virtual HumanResource Hr { get; set; } = null!;
+        [JsonIgnore]
         public virtual ICollection<JobApplied> JobApplieds { get; set; }
     }
 }

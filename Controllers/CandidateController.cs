@@ -37,10 +37,10 @@ namespace Hire360WebAPI.Controllers
             {
                 var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
                 if (candidate == null)
-                    return BadRequest(new { message = "Account does not exist" });
+                    return NotFound(new { message = "Account does not exist" });
                 var verify = BCrypt.Net.BCrypt.Verify(model.Password, candidate!.CandidatePassword);
                 if (!verify)
-                    return BadRequest(new { message = "Please Enter a correct Email and Password." });
+                    return BadRequest(new { message = "Please enter correct email and password." });
                 var response = _candidateServices.Authenticate(candidate);
                 return Ok(response);
             }
@@ -48,7 +48,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Login Failed" });
+                return BadRequest(new { status = "failed", message = "Login failed" });
             }
         }
 
@@ -60,13 +60,13 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var candidate = await _context.Candidates.ToListAsync();
-                return Ok(new { status = "success", data = candidate, message = "Get All Candidate Successful" });
+                return Ok(new { status = "success", data = candidate, message = "Get all candidate successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Get All Candidate Data Failed" });
+                return BadRequest(new { status = "failed", message = "Get all candidate data failed" });
             }
         }
 
@@ -81,7 +81,7 @@ namespace Hire360WebAPI.Controllers
 
                 if (candidate == null)
                 {
-                    return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found" });
+                    return NotFound(new { status = "failed", data = candidate, message = "No candidate found" });
                 }
 
                 // SEND CUSTOM EMAIL
@@ -89,13 +89,13 @@ namespace Hire360WebAPI.Controllers
                 // var subject = "New Job Feeds Available";
                 // await mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
 
-                return Ok(new { status = "success", data = candidate, message = "Get candidate By Id Successful" });
+                return Ok(new { status = "success", data = candidate, message = "Get candidate by id successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get candidate by Id Failed" });
+                return BadRequest(new { status = "failed", message = "Get candidate by id failed" });
             }
         }
 
@@ -104,29 +104,26 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCandidateById(Guid id, Candidate candidate)
         {
-            candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
-            _context.Entry(candidate).State = EntityState.Modified;
-
             try
             {
+                candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
+                _context.Entry(candidate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
                 if (!CandidateExists(id))
                 {
-                    Console.WriteLine(ex);
-                    Sentry.SentrySdk.CaptureException(ex);
-                    return NotFound(new { status = "failed", message = "No Candidate Found" });
+                    return NotFound(new { status = "failed", message = "No candidate found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Candidate By Id Failed" });
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update candidate by id failed" });
                 }
             }
-            return Ok(new { status = "success", message = "Details Updated" });
+            return Ok(new { status = "success", message = "Details updated" });
         }
 
         // POST: api/Candidate
@@ -141,13 +138,13 @@ namespace Hire360WebAPI.Controllers
                 await _context.SaveChangesAsync();
                 await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
 
-                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
+                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "User registration Failed" });
+                return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "User registration failed" });
             }
 
         }
@@ -161,19 +158,19 @@ namespace Hire360WebAPI.Controllers
                 var candidate = await _context.Candidates.FindAsync(id);
                 if (candidate == null)
                 {
-                    return Ok(new { status = "Failed", message = "Candidate Id not found" });
+                    return NotFound(new { status = "failed", message = "Candidate id not found" });
                 }
 
                 _context.Candidates.Remove(candidate);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", messsage = "Candidate Deleted" });
+                return Ok(new { status = "success", messsage = "Candidate deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete Candidate" });
+                return BadRequest(new { status = "failed", message = "Faild to delete candidate" });
             }
         }
 

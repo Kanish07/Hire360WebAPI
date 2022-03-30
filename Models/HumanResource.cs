@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Models
@@ -23,6 +24,7 @@ namespace Hire360WebAPI.Models
         public DateTime? CreatedAt { get; set; }
         public string? Active { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<Job> Jobs { get; set; }
     }
 }
