@@ -10,7 +10,7 @@ using Hire360WebAPI.Models;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class SkillController : ControllerBase
     {
@@ -90,7 +90,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Skill
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Skill>> RegisterSkill(Skill skill)
+        public async Task<ActionResult<Skill>> AddNewSkill(Skill skill)
         {
             try
             {
@@ -127,6 +127,22 @@ namespace Hire360WebAPI.Controllers
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Failed to delete skills" });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSkillsByCandidateId(Guid id)
+        {
+            try
+            {
+                var skill = await _context.Skills.Where(s => s.CandidateId == id).Include(s => s.SkillSet).ToListAsync();
+                return Ok(new { status = "success", data = skill, messsage = "Get skills by candidate id successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Skills by candidate id failed" });
             }
         }
 

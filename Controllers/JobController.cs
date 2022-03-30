@@ -10,7 +10,7 @@ using Hire360WebAPI.Models;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class JobController : ControllerBase
     {
@@ -27,7 +27,7 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-                var job = await _context.JobApplieds.ToListAsync();
+                var job = await _context.Jobs.Include(j => j.Hr).ToListAsync();
                 return Ok(new { status = "success", data = job, message = "Get all jobs successful" });
             }
             catch (System.Exception ex)
@@ -40,15 +40,15 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Job/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Job>> GetJobById(Guid id)
+        public async Task<IActionResult> GetJobById(Guid id)
         {
             try
             {
-                var job = await _context.Jobs.FindAsync(id);
+                var job = await _context.Jobs.Where(j => j.JobId == id).Include(j => j.Hr).FirstOrDefaultAsync();
 
                 if (job == null)
                 {
-                    return NotFound(new { status = "failed", data = job, message = "No job id found " });
+                    return NotFound(new { status = "failed", data = job, message = "No job id found" });
                 }
 
                 return Ok(new { status = "success", data = job, message = "Get job applied by id successful" });
@@ -90,7 +90,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Job
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Job>> RegisterJob(Job job)
+        public async Task<ActionResult<Job>> AddNewJob(Job job)
         {
             try
             {
@@ -127,6 +127,21 @@ namespace Hire360WebAPI.Controllers
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Failed to delete job" });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetJobAddedByHrId(Guid id){
+            try
+            {
+                var job = await _context.Jobs.Where((j) => j.Hrid == id).Include(h => h.Hr).ToListAsync();
+                return Ok(new { status = "success", data = job, message = "Get all the job added by Hr successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Get all the job added by Hr failed" });
             }
         }
 

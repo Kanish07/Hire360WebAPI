@@ -14,7 +14,7 @@ using MimeKit;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class CandidateController : ControllerBase
     {
@@ -129,7 +129,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Candidate
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Candidate>> RegisterCandidate(Candidate candidate)
+        public async Task<ActionResult<Candidate>> AddNewCandidate(Candidate candidate)
         {
             try
             {
@@ -137,7 +137,7 @@ namespace Hire360WebAPI.Controllers
                 _context.Candidates.Add(candidate);
                 await _context.SaveChangesAsync();
 
-                await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
+                // await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
                 return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)
@@ -170,7 +170,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete candidate" });
+                return BadRequest(new { status = "failed", message = "Failed to delete candidate" });
             }
         }
 

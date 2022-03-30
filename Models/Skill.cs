@@ -11,7 +11,7 @@ namespace Hire360WebAPI.Models
         public string SkillLevel { get; set; } = null!;
         public string? Active { get; set; }
 
-        public virtual Candidate Candidate { get; set; } = null!;
-        public virtual SkillSet SkillSet { get; set; } = null!;
+        public virtual Candidate? Candidate { get; set; } = null!;
+        public virtual SkillSet? SkillSet { get; set; } = null!;
     }
 }

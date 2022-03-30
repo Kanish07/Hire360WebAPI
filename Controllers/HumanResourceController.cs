@@ -13,7 +13,7 @@ using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class HumanResourceController : ControllerBase
     {
@@ -122,7 +122,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/HumanResource
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<HumanResource>> RegisterHumanResource(HumanResource humanResource)
+        public async Task<ActionResult<HumanResource>> AddNewHumanResource(HumanResource humanResource)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete Human Resource" });
+                return BadRequest(new { status = "failed", message = "Failed to delete Human Resource" });
             }
         }
 

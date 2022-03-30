@@ -11,7 +11,7 @@ namespace Hire360WebAPI.Models
         public DateTime? AppliedOn { get; set; }
         public string? Active { get; set; }
 
-        public virtual Candidate Candidate { get; set; } = null!;
-        public virtual Job Job { get; set; } = null!;
+        public virtual Candidate? Candidate { get; set; } = null!;
+        public virtual Job? Job { get; set; } = null!;
     }
 }

@@ -10,7 +10,7 @@ using Hire360WebAPI.Models;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class QualificationController : ControllerBase
     {
@@ -27,7 +27,7 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-                var qualification = await _context.JobApplieds.ToListAsync();
+                var qualification = await _context.Qualifications.Include(q => q.Candidate).ToListAsync();
                 return Ok(new { status = "success", data = qualification, message = "Get all qualifications successful" });
             }
             catch (System.Exception ex)
@@ -44,7 +44,7 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-                var qualification = await _context.Qualifications.FindAsync(id);
+                var qualification = await _context.Qualifications.Where(q => q.QualificationId == id).Include(c => c.Candidate).FirstOrDefaultAsync();
 
                 if (qualification == null)
                 {
@@ -89,7 +89,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Qualification
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Qualification>> RegisterQualification(Qualification qualification)
+        public async Task<ActionResult<Qualification>> AddNewQualification(Qualification qualification)
         {
             try
             {
@@ -126,6 +126,22 @@ namespace Hire360WebAPI.Controllers
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = "Failed to delete qualification" });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Qualification>> GetQualificationByCandidateId(Guid id)
+        {
+            try
+            {
+                var qualification = await _context.Qualifications.Where(q => q.CandidateId == id).ToListAsync();
+                return Ok(new { status = "success", data = qualification, messsage = "Qualification by candidate id successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Qualification by candidate id failed" });
             }
         }
 

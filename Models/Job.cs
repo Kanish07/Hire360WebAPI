@@ -21,7 +21,7 @@ namespace Hire360WebAPI.Models
         public DateTime? CreatedAt { get; set; }
         public string? Active { get; set; }
 
-        public virtual HumanResource Hr { get; set; } = null!;
+        public virtual HumanResource? Hr { get; set; } = null!;
         [JsonIgnore]
         public virtual ICollection<JobApplied> JobApplieds { get; set; }
     }

@@ -10,7 +10,7 @@ using Hire360WebAPI.Models;
 
 namespace Hire360WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Action]")]
     [ApiController]
     public class SkillSetController : ControllerBase
     {
@@ -27,7 +27,7 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-                var skillSet = await _context.JobApplieds.ToListAsync();
+                var skillSet = await _context.SkillSets.ToListAsync();
                 return Ok(new { status = "success", data = skillSet, message = "Get all skillset successful" });
             }
             catch (System.Exception ex)
@@ -89,7 +89,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/SkillSet
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<SkillSet>> RegisterSkillSet(SkillSet skillSet)
+        public async Task<ActionResult<SkillSet>> AddNewSkillSet(SkillSet skillSet)
         {
             try
             {

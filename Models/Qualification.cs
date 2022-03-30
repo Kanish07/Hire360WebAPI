@@ -12,6 +12,6 @@ namespace Hire360WebAPI.Models
         public string YearOfGraduation { get; set; } = null!;
         public string? Active { get; set; }
 
-        public virtual Candidate Candidate { get; set; } = null!;
+        public virtual Candidate? Candidate { get; set; } = null!;
     }
 }
