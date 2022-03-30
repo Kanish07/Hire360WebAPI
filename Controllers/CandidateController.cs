@@ -84,10 +84,11 @@ namespace Hire360WebAPI.Controllers
                     return Ok(new { status = "Failed", data = candidate, message = "No candidate Id found" });
                 }
 
-                var body = $"<h1>Hi {candidate.CandidateName}</h1><br><h3> Greetings from Hire360, Do check out the latest job postings on our site. Have a great day!</h3><br><br>";
-                var subject = "New Job Feeds Available";
+                // SEND CUSTOM EMAIL
+                // var body = $"<h1>Hi {candidate.CandidateName}</h1><br><h3> Greetings from Hire360, Do check out the latest job postings on our site. Have a great day!</h3><br><br>";
+                // var subject = "New Job Feeds Available";
+                // await mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
 
-                await mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
                 return Ok(new { status = "success", data = candidate, message = "Get candidate By Id Successful" });
             }
             catch (System.Exception ex)
