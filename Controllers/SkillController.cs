@@ -65,16 +65,16 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkillById(Guid id, Skill skill)
         {
-            _context.Entry(skill).State = EntityState.Modified;
             try
             {
+                _context.Entry(skill).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
                 if (!SkillExists(id))
                 {
-                    return BadRequest(new { status = "failed", data = skill, messsage = "Skill id not found" }); 
+                    return NotFound(new { status = "failed", data = skill, messsage = "Skill id not found" }); 
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete skills" });
+                return BadRequest(new { status = "failed", message = "Failed to delete skills" });
             }
         }
 

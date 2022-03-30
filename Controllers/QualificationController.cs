@@ -28,7 +28,7 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var qualification = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "success", data = qualification, message = "Get all the qualification successful" });
+                return Ok(new { status = "success", data = qualification, message = "Get all qualifications successful" });
             }
             catch (System.Exception ex)
             {
@@ -48,16 +48,15 @@ namespace Hire360WebAPI.Controllers
 
                 if (qualification == null)
                 {
-                    return NotFound(new { status = "failed", data = qualification, message = "No qualifications id found" });
+                    return NotFound(new { status = "failed", data = qualification, message = "Qualification id not found" });
                 }
-                return Ok(new { status = "success", data = qualification, message = "Get qualifications by id successful" });
+                return Ok(new { status = "success", data = qualification, message = "Get qualification by id successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get qualifications failed" });
-
+                return BadRequest(new { status = "failed", message = "Get qualification failed" });
             }
         }
 
@@ -66,22 +65,22 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQualificationById(Guid id, Qualification qualification)
         {
-            _context.Entry(qualification).State = EntityState.Modified;
             try
             {
+                _context.Entry(qualification).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
                 if (!QualificationExists(id))
                 {
-                    return BadRequest(new { status = "failed", data = qualification, messsage = "Qualification id not found" });
+                    return NotFound(new { status = "failed", data = qualification, messsage = "Qualification id not found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update qualification By id failed" });
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update qualification by id failed" });
                 }
             }
             return Ok(new { status = "success", messsage = "Details updated" });
@@ -126,7 +125,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete qualification" });
+                return BadRequest(new { status = "failed", message = "Failed to delete qualification" });
             }
         }
 

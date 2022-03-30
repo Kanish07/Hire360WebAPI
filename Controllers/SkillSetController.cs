@@ -28,7 +28,7 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var skillSet = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "success", data = skillSet, message = "Get all the skillset successful" });
+                return Ok(new { status = "success", data = skillSet, message = "Get all skillset successful" });
             }
             catch (System.Exception ex)
             {
@@ -50,7 +50,6 @@ namespace Hire360WebAPI.Controllers
                 {
                     return NotFound(new { status = "failed", data = skillSet, message = "No skillsets id found" });
                 }
-
                 return Ok(new { status = "success", data = skillSet, message = "Get skillsets by id successful" });
             }
             catch (System.Exception ex)
@@ -66,16 +65,16 @@ namespace Hire360WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkillSetById(Guid id, SkillSet skillSet)
         {
-            _context.Entry(skillSet).State = EntityState.Modified;
             try
             {
+                _context.Entry(skillSet).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
                 if (!SkillSetExists(id))
                 {
-                    return BadRequest(new { status = "failed", data = skillSet, messsage = "Skillset id not found" });
+                    return NotFound(new { status = "failed", data = skillSet, messsage = "Skillset id not found" });
                 }
                 else
                 {
@@ -97,7 +96,7 @@ namespace Hire360WebAPI.Controllers
                 _context.SkillSets.Add(skillSet);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkillSetById", new { id = skillSet.SkillSetId }, new { status = "success", data = skillSet, message = "Skillset successfully" });
+                return CreatedAtAction("GetSkillSetById", new { id = skillSet.SkillSetId }, new { status = "success", data = skillSet, message = "Skillset registered successfully" });
             }
             catch (System.Exception ex)
             {
@@ -128,7 +127,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete skillsets" });
+                return BadRequest(new { status = "failed", message = "Failed to delete skillsets" });
             }
         }
 

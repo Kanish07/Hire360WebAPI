@@ -28,13 +28,13 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var job = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "success", data = job, message = "Get all the job successful" });
+                return Ok(new { status = "success", data = job, message = "Get all jobs successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get all job data failed" });
+                return BadRequest(new { status = "failed", message = "Get all jobs failed" });
             }
         }
 
@@ -57,7 +57,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get job applied by id Failed" });
+                return BadRequest(new { status = "failed", message = "Get job applied by id failed" });
             }
         }
 
@@ -75,7 +75,7 @@ namespace Hire360WebAPI.Controllers
             {
                 if (!JobExists(id))
                 {
-                    return BadRequest(new { status = "failed", data = job, messsage = "Job id not found" });
+                    return NotFound(new { status = "failed", data = job, messsage = "Job id not found" });
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace Hire360WebAPI.Controllers
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Faild to delete job" });
+                return BadRequest(new { status = "failed", message = "Failed to delete job" });
             }
         }
 
