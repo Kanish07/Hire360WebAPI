@@ -28,13 +28,13 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var skillSet = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "Success", data = skillSet, message = "Get All the skillSet Successful" });
+                return Ok(new { status = "success", data = skillSet, message = "Get all the skillset successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Get All skillSet Data Failed" });
+                return BadRequest(new { status = "failed", message = "Get all skillset data failed" });
             }
         }
 
@@ -48,16 +48,16 @@ namespace Hire360WebAPI.Controllers
 
                 if (skillSet == null)
                 {
-                    return Ok(new { status = "Failed", data = skillSet, message = "No SkillSets Id found" });
+                    return NotFound(new { status = "failed", data = skillSet, message = "No skillsets id found" });
                 }
 
-                return Ok(new { status = "success", data = skillSet, message = "Get SkillSets By Id Successful" });
+                return Ok(new { status = "success", data = skillSet, message = "Get skillsets by id successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get SkillSets Failed" });
+                return BadRequest(new { status = "failed", message = "Get skillsets failed" });
             }
         }
 
@@ -75,18 +75,16 @@ namespace Hire360WebAPI.Controllers
             {
                 if (!SkillSetExists(id))
                 {
-                    Console.WriteLine(ex);
-                    Sentry.SentrySdk.CaptureException(ex);
-                    return Ok(new { status = "Failed", data = skillSet, messsage = "SkillSet Id not available" });
+                    return BadRequest(new { status = "failed", data = skillSet, messsage = "Skillset id not found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update SkillSet By Id Failed" }); ;
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update skillSet by id failed" }); ;
                 }
             }
-            return Ok(new { status = "Success", data = skillSet, messsage = "Details Updated" });
+            return Ok(new { status = "success", data = skillSet, messsage = "Details updated" });
         }
 
         // POST: api/SkillSet
@@ -99,13 +97,13 @@ namespace Hire360WebAPI.Controllers
                 _context.SkillSets.Add(skillSet);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkillSetById", new { id = skillSet.SkillSetId }, new { status = "Success", data = skillSet, message = "SkillSet Successfully" });
+                return CreatedAtAction("GetSkillSetById", new { id = skillSet.SkillSetId }, new { status = "success", data = skillSet, message = "Skillset successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Failed to create new SkillSet" });
+                return BadRequest(new { status = "failed", message = "Failed to create new skillset" });
             }
         }
 
@@ -118,19 +116,19 @@ namespace Hire360WebAPI.Controllers
                 var skillSet = await _context.SkillSets.FindAsync(id);
                 if (skillSet == null)
                 {
-                    return Ok(new { status = "Failed", data = skillSet, message = "SkillSets Id not found" });
+                    return NotFound(new { status = "failed", data = skillSet, message = "Skillsets id not found" });
                 }
 
                 _context.SkillSets.Remove(skillSet);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "Success", data = skillSet, messsage = "SkillSets deleted" });
+                return Ok(new { status = "success", data = skillSet, messsage = "Skillsets deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete SkillSets" });
+                return BadRequest(new { status = "failed", message = "Faild to delete skillsets" });
             }
         }
 
