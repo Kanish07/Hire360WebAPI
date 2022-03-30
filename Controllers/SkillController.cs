@@ -28,13 +28,13 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var skill = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "Success", data = skill, message = "Get All the Skills Successful" });
+                return Ok(new { status = "success", data = skill, message = "Get all the skills successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Get All Skills Data Failed" });
+                return BadRequest(new { status = "failed", message = "Get all skills data failed" });
             }
         }
 
@@ -48,15 +48,15 @@ namespace Hire360WebAPI.Controllers
 
                 if (skill == null)
                 {
-                    return Ok(new { status = "Failed", data = skill, message = "No Skills Id found" });
+                    return NotFound(new { status = "failed", data = skill, message = "No skills id found" });
                 }
-                return Ok(new { status = "success", data = skill, message = "Get Skills By Id Successful" });
+                return Ok(new { status = "success", data = skill, message = "Get skills by id successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get Skills Failed" });
+                return BadRequest(new { status = "failed", message = "Get skills failed" });
             }
         }
 
@@ -74,19 +74,17 @@ namespace Hire360WebAPI.Controllers
             {
                 if (!SkillExists(id))
                 {
-                    Console.WriteLine(ex);
-                    Sentry.SentrySdk.CaptureException(ex);
-                    return Ok(new { status = "Failed", data = skill, messsage = "Skill Id not available" });
+                    return BadRequest(new { status = "failed", data = skill, messsage = "Skill id not found" }); 
                 }
                 else
                 {
                     Console.WriteLine(ex);
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Skills By Id Failed" }); ;
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update skills by id failed" }); ;
                 }
             }
 
-            return Ok(new { status = "Failed", data = skill, messsage = "Failed to Update the Skill" });
+            return Ok(new { status = "success", data = skill, messsage = "Details updated" });
         }
 
         // POST: api/Skill
@@ -99,13 +97,13 @@ namespace Hire360WebAPI.Controllers
                 _context.Skills.Add(skill);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetSkillById", new { id = skill.SkillId }, new { status = "Success", data = skill, message = "Skills Applied Successfully" });
+                return CreatedAtAction("GetSkillById", new { id = skill.SkillId }, new { status = "success", data = skill, message = "Skills applied successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Failed to create new Skill" });
+                return BadRequest(new { status = "failed", message = "Failed to create new skill" });
             }
         }
 
@@ -118,17 +116,17 @@ namespace Hire360WebAPI.Controllers
                 var skill = await _context.Skills.FindAsync(id);
                 if (skill == null)
                 {
-                    return Ok(new { status = "Failed", data = skill, message = "Skills Id not found" });
+                    return NotFound(new { status = "failed", data = skill, message = "Skills id not found" });
                 }
                 _context.Skills.Remove(skill);
                 await _context.SaveChangesAsync();
-                return Ok(new { status = "Success", data = skill, messsage = "Skills deleted" });
+                return Ok(new { status = "success", data = skill, messsage = "Skills deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete Skills" });
+                return BadRequest(new { status = "failed", message = "Faild to delete skills" });
             }
         }
 

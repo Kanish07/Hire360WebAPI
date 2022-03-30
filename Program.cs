@@ -64,9 +64,6 @@ builder.Services.AddCors();
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddScoped<ICandidateServices, CandidateServices>();
 builder.Services.AddScoped<IHumanResourceServices, HumanResourceServices>();
-builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
-builder.Services.AddTransient<IMailService, MailService>();
-
  Host.CreateDefaultBuilder(args)
         .ConfigureWebHostDefaults(webBuilder =>
         {
@@ -82,6 +79,9 @@ builder.Services.AddTransient<IMailService, MailService>();
             });
         });
 builder.WebHost.UseSentry();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddTransient<IMailService, MailService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

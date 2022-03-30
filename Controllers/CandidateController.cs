@@ -136,9 +136,9 @@ namespace Hire360WebAPI.Controllers
                 candidate.CandidatePassword = BCrypt.Net.BCrypt.HashPassword(candidate.CandidatePassword);
                 _context.Candidates.Add(candidate);
                 await _context.SaveChangesAsync();
-                await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
 
-                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration successful" });
+                await mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
+                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)
             {

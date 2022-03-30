@@ -28,13 +28,13 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var job = await _context.JobApplieds.ToListAsync();
-                return Ok(new { status = "Success", data = job, message = "Get All the Job Successful" });
+                return Ok(new { status = "success", data = job, message = "Get all the job successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Get All Job Data Failed" });
+                return BadRequest(new { status = "failed", message = "Get all job data failed" });
             }
         }
 
@@ -48,16 +48,16 @@ namespace Hire360WebAPI.Controllers
 
                 if (job == null)
                 {
-                    return Ok(new { status = "Failed", data = job, message = "No Job Id found " });
+                    return NotFound(new { status = "failed", data = job, message = "No job id found " });
                 }
 
-                return Ok(new { status = "success", data = job, message = "Get job Applied By Id Successful" });
+                return Ok(new { status = "success", data = job, message = "Get job applied by id successful" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = "Get job Applied by Id Failed" });
+                return BadRequest(new { status = "failed", message = "Get job applied by id Failed" });
             }
         }
 
@@ -75,18 +75,16 @@ namespace Hire360WebAPI.Controllers
             {
                 if (!JobExists(id))
                 {
-                    Console.WriteLine(ex);
-                    Sentry.SentrySdk.CaptureException(ex);
-                    return Ok(new { status = "Failed", data = job, messsage = "Job Id is already available" });
+                    return BadRequest(new { status = "failed", data = job, messsage = "Job id not found" });
                 }
                 else
                 {
                     Console.WriteLine(ex);
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update Job By Id Failed" });
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update job by id failed" });
                 }
             }
-            return Ok(new { status = "Failed", data = job, messsage = "Failed to Update the Job" });
+            return Ok(new { status = "success", data = job, messsage = "Details updated" });
         }
 
         // POST: api/Job
@@ -99,13 +97,13 @@ namespace Hire360WebAPI.Controllers
                 _context.Jobs.Add(job);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetJobById", new { id = job.JobId }, new { status = "Success", data = job, message = "Job registered Successfully" });
+                return CreatedAtAction("GetJobById", new { id = job.JobId }, new { status = "success", data = job, message = "Job registered successfully" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Failed to create new Job" });
+                return BadRequest(new { status = "failed", message = "Failed to create new job" });
             }
         }
 
@@ -118,17 +116,17 @@ namespace Hire360WebAPI.Controllers
                 var job = await _context.Jobs.FindAsync(id);
                 if (job == null)
                 {
-                    return Ok(new { status = "Failed", data = job, message = "Job Id not found" });
+                    return NotFound(new { status = "failed", data = job, message = "Job id not found" });
                 }
                 _context.Jobs.Remove(job);
                 await _context.SaveChangesAsync();
-                return Ok(new { status = "Success", data = job, messsage = "Job deleted..." });
+                return Ok(new { status = "success", data = job, messsage = "Job deleted" });
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "Failed", message = "Faild to delete Job" });
+                return BadRequest(new { status = "failed", message = "Faild to delete job" });
             }
         }
 
