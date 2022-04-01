@@ -161,6 +161,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         //FIXME: Should check jobid and reject all other ID
+        // FIXME: Include candidate 
         // Get the jobs applied by jobId
         [HttpGet("{id}")]
         public async Task<IActionResult> GetJobAppliedByJobId(Guid id)
