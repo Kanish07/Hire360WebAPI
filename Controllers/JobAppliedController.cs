@@ -160,15 +160,18 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        //FIXME: Should check jobid and reject all other ID
-        // FIXME: Include candidate 
         // Get the jobs applied by jobId
         [HttpGet("{id}")]
         public async Task<IActionResult> GetJobAppliedByJobId(Guid id)
         {
             try
             {
-                var jobApplied = await _context.JobApplieds.Where((j) => j.JobId == id).ToListAsync();
+                var jobExists = await _context.Jobs.FindAsync(id);
+                if (jobExists == null)
+                {
+                    return NotFound(new { status = "failed", message = "Job not found"});
+                }
+                var jobApplied = await _context.JobApplieds.Where((j) => j.JobId == id).Include((c) => c.Candidate).ToListAsync();
                 return Ok(new { status = "success", data = jobApplied, message = "Get all job applied by job id successful" });
             }
             catch (System.Exception ex)
