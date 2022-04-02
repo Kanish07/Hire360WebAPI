@@ -134,10 +134,10 @@ namespace Hire360WebAPI.Controllers
         public async Task<IActionResult> GetJobAddedByHrId(Guid id){
             try
             {
-                var jobExists = await _context.Jobs.FindAsync(id);
-                if (jobExists == null)
+                var HrExist = await _context.HumanResources.FindAsync(id);
+                if (HrExist == null)
                 {
-                    return NotFound(new { status = "failed", message = "Job not found"});
+                    return NotFound(new { status = "failed", message = "Hr not found"});
                 }
                 var job = await _context.Jobs.Where((j) => j.Hrid == id).Include(h => h.Hr).ToListAsync();
                 return Ok(new { status = "success", data = job, message = "Get all the job added by Hr successful" });
