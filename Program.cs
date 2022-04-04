@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddDbContext<Hire360Context>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
+builder.Services.AddDbContext<Hire360Context>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"), options => options.EnableRetryOnFailure()));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -80,6 +80,7 @@ Host.CreateDefaultBuilder(args)
 builder.WebHost.UseSentry();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailService, MailService>();
+builder.Services.AddScoped<IAzureStorage, AzureStorage>();
 
 var app = builder.Build();
 

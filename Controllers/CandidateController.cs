@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,13 +21,15 @@ namespace Hire360WebAPI.Controllers
     {
         private readonly Hire360Context _context;
         private readonly ICandidateServices _candidateServices;
-        private readonly IMailService mailService;
+        private readonly IMailService _mailService;
+        private readonly IAzureStorage _azurestorage;
 
-        public CandidateController(Hire360Context context, ICandidateServices candidateServices, IMailService mailService)
+        public CandidateController(Hire360Context context, ICandidateServices candidateServices, IMailService mailService, IAzureStorage azureStorage)
         {
             _context = context;
+            _azurestorage = azureStorage;
             _candidateServices = candidateServices;
-            this.mailService = mailService;
+            _mailService = mailService;
         }
 
         // POST: api/candidate/login
@@ -173,6 +176,37 @@ namespace Hire360WebAPI.Controllers
                 return BadRequest(new { status = "failed", message = "Failed to delete candidate" });
             }
         }
+
+    // File Upload
+    [HttpPost("{id}"), DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadResume(Guid id)
+    {
+      try
+      {
+        var formCollection = await Request.ReadFormAsync();
+        var file = formCollection.Files.First();
+        if (file.Length > 0)
+        {
+          var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+          string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
+          if (fileURL != null)
+          {
+              var candidate = await _context.Candidates.FindAsync(id);
+              candidate.CandidateResume = fileURL;
+              await _context.SaveChangesAsync();
+          }
+          return Ok(new { fileURL });
+        }
+        else
+        {
+          return BadRequest();
+        }
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, $"Internal server error: {ex}");
+      }
+    }
 
         private bool CandidateExists(Guid id)
         {
