@@ -61,6 +61,30 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
+        // GET: api/Job/5
+        [HttpGet("{id}/{candidateId}")]
+        public async Task<IActionResult> GetJobByIdCheckIfAlreadyApplied(Guid id, Guid candidateId)
+        {
+            try
+            {
+                var jobAlreadyApplied = await _context.JobApplieds.Where(j => j.JobId == id && j.CandidateId == candidateId).FirstOrDefaultAsync();
+                var job = await _context.Jobs.Where(j => j.JobId == id).Include(j => j.Hr).FirstOrDefaultAsync();
+
+                if (job == null)
+                {
+                    return NotFound(new { status = "failed", data = job, message = "No job id found" });
+                }
+
+                return Ok(new { status = "success", data = new {job = job, isApplied = jobAlreadyApplied != null}, message = "Get job applied by id successful" });
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = "Get job applied by id failed" });
+            }
+        }
+
         // PUT: api/Job/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
