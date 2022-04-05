@@ -183,7 +183,7 @@ namespace Hire360WebAPI.Controllers
                 var cityArr = city == null || city == "" ? new string[100] : city.Split(',');
                 var roleArr = role == null || role == "" ? new string[100] : role.Split(',');
                 var low = salarylow == null || salarylow == "" ? 0 : int.Parse(salarylow);
-                var high = salaryhigh == null || salaryhigh == "" ? 999999999999999999 : int.Parse(salaryhigh);
+                var high = salaryhigh == null || salaryhigh == "" ? 999999999 : int.Parse(salaryhigh);
 
                 Console.WriteLine(role != null && role != "");
                 var job = new List<Job>();
@@ -191,14 +191,14 @@ namespace Hire360WebAPI.Controllers
                 if (city != null && city != "" || role != null && role != "")
                 {
                     if (city != null && city != "" && role != null && role != "") {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package > low && j.Package <high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
                     } else if (city != null && city != "" ) {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package > low && j.Package <high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
                     } else {
-                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package > low && j.Package <high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
                     }
                 } else {
-                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package > low && j.Package <high).ToListAsync();
+                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).ToListAsync();
                 }
 
                 
