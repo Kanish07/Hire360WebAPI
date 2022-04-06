@@ -149,7 +149,7 @@ namespace Hire360WebAPI.Controllers
         {
             try
             {
-                var jobAppliedByCandidate = await _context.JobApplieds.Where((j) => j.CandidateId == id).ToListAsync();
+                var jobAppliedByCandidate = await _context.JobApplieds.Where((j) => j.CandidateId == id).Include(j => j.Job).ToListAsync();
                 return Ok(new { status = "success", data = jobAppliedByCandidate, message = "Get all job applied by candidate successful" });
             }
             catch (System.Exception ex)
