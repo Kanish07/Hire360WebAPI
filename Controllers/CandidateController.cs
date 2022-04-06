@@ -208,6 +208,37 @@ namespace Hire360WebAPI.Controllers
       }
     }
 
+    // File Upload
+    [HttpPost("{id}"), DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadProfilePicture(Guid id)
+    {
+      try
+      {
+        var formCollection = await Request.ReadFormAsync();
+        var file = formCollection.Files.First();
+        if (file.Length > 0)
+        {
+          var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+          string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
+          if (fileURL != null)
+          {
+              var candidate = await _context.Candidates.FindAsync(id);
+              candidate.CandidatePhotoUrl = fileURL;
+              await _context.SaveChangesAsync();
+          }
+          return Ok(new { fileURL });
+        }
+        else
+        {
+          return BadRequest();
+        }
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, $"Internal server error: {ex}");
+      }
+    }
+
         private bool CandidateExists(Guid id)
         {
             return _context.Candidates.Any(e => e.CandidateId == id);

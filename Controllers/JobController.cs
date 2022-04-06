@@ -28,6 +28,7 @@ namespace Hire360WebAPI.Controllers
             try
             {
                 var job = await _context.Jobs.Include(j => j.Hr).ToListAsync();
+                var count = _context.Jobs.Count();
                 return Ok(new { status = "success", data = job, message = "Get all jobs successful" });
             }
             catch (System.Exception ex)
@@ -175,8 +176,8 @@ namespace Hire360WebAPI.Controllers
         }
 
         //Filter Job API
-        [HttpGet]
-        public async Task<IActionResult> GetAllJobsBasedOnFilter([FromQuery] string city, [FromQuery] string role, [FromQuery] string salarylow, [FromQuery] string salaryhigh)
+        [HttpGet("{page}")]
+        public async Task<IActionResult> GetAllJobsBasedOnFilter(int page,[FromQuery] string city, [FromQuery] string role, [FromQuery] string salarylow, [FromQuery] string salaryhigh)
         {
             try
             {
@@ -184,25 +185,28 @@ namespace Hire360WebAPI.Controllers
                 var roleArr = role == null || role == "" ? new string[100] : role.Split(',');
                 var low = salarylow == null || salarylow == "" ? 0 : int.Parse(salarylow);
                 var high = salaryhigh == null || salaryhigh == "" ? 999999999 : int.Parse(salaryhigh);
-
+                var pageNumber = (page - 1) * 5;
                 Console.WriteLine(role != null && role != "");
                 var job = new List<Job>();
+                var jobCount = 1;
 
                 if (city != null && city != "" || role != null && role != "")
                 {
                     if (city != null && city != "" && role != null && role != "") {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     } else if (city != null && city != "" ) {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     } else {
-                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).ToListAsync();
+                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        jobCount = _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     }
                 } else {
-                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).ToListAsync();
+                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Skip(pageNumber).Take(5).ToListAsync();
+                    jobCount = _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Count();
                 }
-
-                
-                return Ok(new { status = "success", data = job, message = "Get all jobs successful" });
+                return Ok(new { status = "success", data = job, count = jobCount, message = "Get all jobs successful" });
             }
             catch (System.Exception ex)
             {
