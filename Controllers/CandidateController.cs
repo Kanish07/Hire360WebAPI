@@ -177,67 +177,93 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-    // File Upload
-    [HttpPost("{id}"), DisableRequestSizeLimit]
-    public async Task<IActionResult> UploadResume(Guid id)
-    {
-      try
-      {
-        var formCollection = await Request.ReadFormAsync();
-        var file = formCollection.Files.First();
-        if (file.Length > 0)
+        // File Upload
+        [HttpPost("{id}"), DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadResume(Guid id)
         {
-          var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-          string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
-          if (fileURL != null)
-          {
-              var candidate = await _context.Candidates.FindAsync(id);
-              candidate.CandidateResume = fileURL;
-              await _context.SaveChangesAsync();
-          }
-          return Ok(new { fileURL });
+            try
+            {
+                var formCollection = await Request.ReadFormAsync();
+                var file = formCollection.Files.First();
+                if (file.Length > 0)
+                {
+                    var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                    string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
+                    if (fileURL != null)
+                    {
+                        var candidate = await _context.Candidates.FindAsync(id);
+                        candidate.CandidateResume = fileURL;
+                        await _context.SaveChangesAsync();
+                    }
+                    return Ok(new { fileURL });
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
         }
-        else
-        {
-          return BadRequest();
-        }
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(500, $"Internal server error: {ex}");
-      }
-    }
 
-    // File Upload
-    [HttpPost("{id}"), DisableRequestSizeLimit]
-    public async Task<IActionResult> UploadProfilePicture(Guid id)
-    {
-      try
-      {
-        var formCollection = await Request.ReadFormAsync();
-        var file = formCollection.Files.First();
-        if (file.Length > 0)
+        // File Upload
+        [HttpPost("{id}"), DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadProfilePicture(Guid id)
         {
-          var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-          string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
-          if (fileURL != null)
-          {
-              var candidate = await _context.Candidates.FindAsync(id);
-              candidate.CandidatePhotoUrl = fileURL;
-              await _context.SaveChangesAsync();
-          }
-          return Ok(new { fileURL });
+            try
+            {
+                var formCollection = await Request.ReadFormAsync();
+                var file = formCollection.Files.First();
+                if (file.Length > 0)
+                {
+                    var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                    string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
+                    if (fileURL != null)
+                    {
+                        var candidate = await _context.Candidates.FindAsync(id);
+                        candidate.CandidatePhotoUrl = fileURL;
+                        await _context.SaveChangesAsync();
+                    }
+                    return Ok(new { fileURL });
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
         }
-        else
+
+        //Update Description
+        [HttpGet("{id}")]
+        public async Task<IActionResult> UpdateCandidateDescriptionById(Guid id, string description)
         {
-          return BadRequest();
+            try
+            {
+                var candidate = await _context.Candidates.FindAsync(id);
+                candidate.CandidateDescription = description;
+                await _context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                if (!CandidateExists(id))
+                {
+                    return NotFound(new { status = "failed", message = "No candidate found" });
+                }
+                else
+                {
+                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", serverMessage = ex.Message, message = "Update candidate description by id failed" });
+                }
+            }
+            return Ok(new { status = "success", message = "Description updated" });
         }
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(500, $"Internal server error: {ex}");
-      }
-    }
 
         private bool CandidateExists(Guid id)
         {
