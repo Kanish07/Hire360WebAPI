@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
+using Hire360WebAPI.Services;
 
 namespace Hire360WebAPI.Controllers
 {
@@ -15,10 +16,13 @@ namespace Hire360WebAPI.Controllers
     public class JobAppliedController : ControllerBase
     {
         private readonly Hire360Context _context;
+        private readonly IMailService _mailService;
 
-        public JobAppliedController(Hire360Context context)
+
+        public JobAppliedController(Hire360Context context, IMailService mailService)
         {
             _context = context;
+            _mailService = mailService;
         }
 
         // GET: api/JobApplied
@@ -100,8 +104,14 @@ namespace Hire360WebAPI.Controllers
 
                 if (jobAppliedExist == null)
                 {
+                    var candidate = await _context.Candidates.Where(j => j.CandidateId == jobApplied.CandidateId).FirstOrDefaultAsync();
+                    var job = await _context.Jobs.Where(j => j.JobId == jobApplied.JobId).Include(h => h.Hr).FirstOrDefaultAsync();
+                    var body = $"<h3>Hi {candidate.CandidateName},</h3><br><h3> Greetings from Hire360, You have successfully submitted your application for {job.JobTitle}.<br>The recruiter may try to reach you at {candidate.CandidatePhoneNumber} (or) {candidate.CandidateEmail}<br></h3><h3>Regards,<br>Team Hire360</h3><br>";
+                    var subject = $"Job applied at {job.Hr.CompanyName} for {job.JobTitle}";
                     _context.JobApplieds.Add(jobApplied);
                     await _context.SaveChangesAsync();
+                    // SEND CUSTOM EMAIL
+                    await _mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
                     return CreatedAtAction("GetJobAppliedById", new { id = jobApplied.JobAppliedId }, new { status = "success", data = jobApplied, message = "Job applied successfully" });
                 }
                 else
