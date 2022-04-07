@@ -17,6 +17,7 @@ namespace Hire360WebAPI.Controllers
 {
     [Route("api/[Action]")]
     [ApiController]
+    [Authorize]
     public class CandidateController : ControllerBase
     {
         private readonly Hire360Context _context;
@@ -33,6 +34,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         // POST: api/candidate/login
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult CandidateLogin(AuthRequest model)
         {
@@ -57,7 +59,6 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate
         [HttpGet]
-        // [Authorize]
         public async Task<IActionResult> GetAllCandidates()
         {
             try
@@ -75,7 +76,6 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
-        // [Authorize(Role.Candidate)]
         public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
         {
             try
@@ -127,6 +127,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Candidate
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<Candidate>> AddNewCandidate(Candidate candidate)
         {
             try
@@ -236,6 +237,7 @@ namespace Hire360WebAPI.Controllers
 
         //Update Description
         [HttpGet("{id}")]
+        [Authorize(Role.Candidate)]
         public async Task<IActionResult> UpdateCandidateDescriptionById(Guid id, string description)
         {
             try

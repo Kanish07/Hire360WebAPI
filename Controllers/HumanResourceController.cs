@@ -15,6 +15,7 @@ namespace Hire360WebAPI.Controllers
 {
     [Route("api/[Action]")]
     [ApiController]
+    [Authorize]
     public class HumanResourceController : ControllerBase
     {
         private readonly Hire360Context _context;
@@ -26,6 +27,7 @@ namespace Hire360WebAPI.Controllers
             _humanResourceServices = humanResourceServices;
         }
 
+        [AllowAnonymous]
         // POST: api/candidate/login
         [HttpPost("login")]
         public IActionResult HrLogin(AuthRequest model)
@@ -69,7 +71,6 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/HumanResource/5
         [HttpGet("{id}")]
-        // [Authorize(Role.HR)]
         public async Task<ActionResult<HumanResource>> GetHumanResourceById(Guid id)
         {
             try
@@ -122,6 +123,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/HumanResource
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<HumanResource>> AddNewHumanResource(HumanResource humanResource)
         {
             try

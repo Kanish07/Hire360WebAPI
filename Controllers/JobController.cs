@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
+using Hire360WebAPI.Helpers;
+using Hire360WebAPI.Entities;
 
 namespace Hire360WebAPI.Controllers
 {
     [Route("api/[Action]")]
     [ApiController]
+    [Authorize]
     public class JobController : ControllerBase
     {
         private readonly Hire360Context _context;
@@ -115,6 +118,7 @@ namespace Hire360WebAPI.Controllers
         // POST: api/Job
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Role.HR)]
         public async Task<ActionResult<Job>> AddNewJob(Job job)
         {
             try

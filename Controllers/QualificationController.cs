@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hire360WebAPI.Models;
+using Hire360WebAPI.Helpers;
 
 namespace Hire360WebAPI.Controllers
 {
     [Route("api/[Action]")]
     [ApiController]
+    [Authorize]
     public class QualificationController : ControllerBase
     {
         private readonly Hire360Context _context;
