@@ -17,7 +17,7 @@ namespace Hire360WebAPI.Controllers
 {
     [Route("api/[Action]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class CandidateController : ControllerBase
     {
         private readonly Hire360Context _context;
