@@ -76,7 +76,7 @@ namespace Hire360WebAPI.Controllers
                     return NotFound(new { status = "failed", data = job, message = "No job id found" });
                 }
 
-                return Ok(new { status = "success", data = new {job = job, isApplied = jobAlreadyApplied != null}, message = "Get job applied by id successful" });
+                return Ok(new { status = "success", data = new { job = job, isApplied = jobAlreadyApplied != null }, message = "Get job applied by id successful" });
             }
             catch (System.Exception ex)
             {
@@ -156,13 +156,14 @@ namespace Hire360WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetJobAddedByHrId(Guid id){
+        public async Task<IActionResult> GetJobAddedByHrId(Guid id)
+        {
             try
             {
                 var HrExist = await _context.HumanResources.FindAsync(id);
                 if (HrExist == null)
                 {
-                    return NotFound(new { status = "failed", message = "Hr not found"});
+                    return NotFound(new { status = "failed", message = "Hr not found" });
                 }
                 var job = await _context.Jobs.Where((j) => j.Hrid == id).Include(h => h.Hr).ToListAsync();
                 return Ok(new { status = "success", data = job, message = "Get all the job added by Hr successful" });
@@ -176,37 +177,62 @@ namespace Hire360WebAPI.Controllers
         }
 
         //Filter Job API
-        [HttpGet("{page}")]
-        public async Task<IActionResult> GetAllJobsBasedOnFilter(int page,[FromQuery] string city, [FromQuery] string role, [FromQuery] string salarylow, [FromQuery] string salaryhigh)
+        [HttpGet("{candidateId}/{page}")]
+        public async Task<IActionResult> GetAllJobsBasedOnFilter(Guid candidateId, int page, [FromQuery] string city, [FromQuery] string role, [FromQuery] string salarylow, [FromQuery] string salaryhigh)
         {
             try
             {
+                var jobAlreadyApplied = await _context.Candidates.Where(c => c.CandidateId.Equals(candidateId)).Include(c => c.JobApplieds).FirstOrDefaultAsync();
+                var applied = new List<Guid>();
+                var appliedAsString = new List<string>();
+                foreach (var item in jobAlreadyApplied.JobApplieds)
+                {
+                    applied.Add(item.JobId);
+                    appliedAsString.Add(item.JobId.ToString());
+                }
+
+
                 var cityArr = city == null || city == "" ? new string[100] : city.Split(',');
                 var roleArr = role == null || role == "" ? new string[100] : role.Split(',');
                 var low = salarylow == null || salarylow == "" ? 0 : int.Parse(salarylow);
                 var high = salaryhigh == null || salaryhigh == "" ? 999999999 : int.Parse(salaryhigh);
                 var pageNumber = (page - 1) * 10;
-                Console.WriteLine(role != null && role != "");
                 var job = new List<Job>();
                 var jobCount = 1;
 
                 if (city != null && city != "" || role != null && role != "")
                 {
-                    if (city != null && city != "" && role != null && role != "") {
+                    if (city != null && city != "" && role != null && role != "")
+                    {
                         job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
-                    } else if (city != null && city != "" ) {
+                    }
+                    else if (city != null && city != "")
+                    {
                         job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
-                    } else {
+                    }
+                    else
+                    {
                         job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     }
-                } else {
+                }
+                else
+                {
                     job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Skip(pageNumber).Take(10).ToListAsync();
                     jobCount = _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Count();
                 }
-                return Ok(new { status = "success", data = job, count = jobCount, message = "Get all jobs successful" });
+
+                var jobList = new List<Job>();
+                foreach (var item in job)
+                {
+                    if (!appliedAsString.Contains(item.JobId.ToString()))
+                    {
+                        jobList.Add(item);
+                    }
+                }
+                return Ok(new { status = "success", data = jobList, count = jobCount, message = "Get all jobs successful" });
             }
             catch (System.Exception ex)
             {
