@@ -23,7 +23,7 @@ namespace Hire360WebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Qualification
+        // Get all the qualifications
         [HttpGet]
         public async Task<IActionResult> GetAllQualifications()
         {
@@ -40,7 +40,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // GET: api/Qualification/5
+        // Get qualification using qualification id
         [HttpGet("{id}")]
         public async Task<ActionResult<Qualification>> GetQualificationById(Guid id)
         {
@@ -62,7 +62,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // PUT: api/Qualification/5
+        // Update the qualification by qualification id
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQualificationById(Guid id, Qualification qualification)
@@ -88,7 +88,7 @@ namespace Hire360WebAPI.Controllers
             return Ok(new { status = "success", messsage = "Details updated" });
         }
 
-        // POST: api/Qualification
+        // Add new qualification
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Qualification>> AddNewQualification(Qualification qualification)
@@ -107,7 +107,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Qualification/5
+        // Delete qualification using qualification id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQualificationById(Guid id)
         {
@@ -131,6 +131,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
+        // Get qualification by candidate id
         [HttpGet("{id}")]
         public async Task<ActionResult<Qualification>> GetQualificationByCandidateId(Guid id)
         {

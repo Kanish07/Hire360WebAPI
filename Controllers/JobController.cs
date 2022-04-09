@@ -24,7 +24,7 @@ namespace Hire360WebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Job
+        // Get all the jobs
         [HttpGet]
         public async Task<IActionResult> GetAllJobs()
         {
@@ -42,7 +42,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // GET: api/Job/5
+        // Get job using job id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetJobById(Guid id)
         {
@@ -65,7 +65,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // GET: api/Job/5
+        // Get Job By Id Check If Already Applied
         [HttpGet("{id}/{candidateId}")]
         public async Task<IActionResult> GetJobByIdCheckIfAlreadyApplied(Guid id, Guid candidateId)
         {
@@ -89,7 +89,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // PUT: api/Job/5
+        // Update the job using job id
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateJobById(Guid id, Job job)
@@ -115,7 +115,7 @@ namespace Hire360WebAPI.Controllers
             return Ok(new { status = "success", data = job, messsage = "Details updated" });
         }
 
-        // POST: api/Job
+        // Add new job
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Role.HR)]
@@ -136,7 +136,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // DELETE: api/Job/5
+        // Delete job using job id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteJobById(Guid id)
         {
@@ -159,6 +159,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
+        // Get Job Added By Hr Id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetJobAddedByHrId(Guid id)
         {

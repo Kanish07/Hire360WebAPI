@@ -23,7 +23,7 @@ namespace Hire360WebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/SkillSet
+        // Get all the skill set
         [HttpGet]
         public async Task<IActionResult> GetAllSkillSets()
         {
@@ -40,7 +40,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // GET: api/SkillSet/5
+        // Get skill set by using skill set id
         [HttpGet("{id}")]
         public async Task<ActionResult<SkillSet>> GetSkillSetById(Guid id)
         {
@@ -62,7 +62,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // PUT: api/SkillSet/5
+        // update skill set by using skill set id
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkillSetById(Guid id, SkillSet skillSet)
@@ -88,7 +88,7 @@ namespace Hire360WebAPI.Controllers
             return Ok(new { status = "success", data = skillSet, messsage = "Details updated" });
         }
 
-        // POST: api/SkillSet
+        // Add new skill set
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<SkillSet>> AddNewSkillSet(SkillSet skillSet)
@@ -108,7 +108,7 @@ namespace Hire360WebAPI.Controllers
             }
         }
 
-        // DELETE: api/SkillSet/5
+        // Delete skill set using skill set id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSkillSetById(Guid id)
         {
