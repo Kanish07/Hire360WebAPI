@@ -75,7 +75,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         // GET: api/Candidate/5
-        [HttpGet("{id}")]
+        [HttpGet("{candidateId}")]
         public async Task<ActionResult<Candidate>> GetCandidateById(Guid candidateId)
         {
             try
@@ -99,7 +99,7 @@ namespace Hire360WebAPI.Controllers
 
         // PUT: api/Candidate/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{candidateId}")]
         public async Task<IActionResult> UpdateCandidateById(Guid candidateId, Candidate candidate)
         {
             try
@@ -151,7 +151,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         // DELETE: api/Candidate/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{candidateId}")]
         public async Task<IActionResult> DeleteCandidateById(Guid candidateId)
         {
             try
@@ -176,7 +176,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         // File Upload
-        [HttpPost("{id}"), DisableRequestSizeLimit]
+        [HttpPost("{candidateId}"), DisableRequestSizeLimit]
         public async Task<IActionResult> UploadResume(Guid candidateId)
         {
             try
@@ -207,7 +207,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         // File Upload
-        [HttpPost("{id}"), DisableRequestSizeLimit]
+        [HttpPost("{candidateId}"), DisableRequestSizeLimit]
         public async Task<IActionResult> UploadProfilePicture(Guid candidateId)
         {
             try
@@ -238,7 +238,7 @@ namespace Hire360WebAPI.Controllers
         }
 
         //Update Description
-        [HttpGet("{id}")]
+        [HttpGet("{candidateId}")]
         [Authorize(Role.Candidate)]
         public async Task<IActionResult> UpdateCandidateDescriptionById(Guid candidateId, string description)
         {
