@@ -139,7 +139,7 @@ namespace Hire360WebAPI.Controllers
                 var body = $"<h3>Hi {candidate.CandidateName},</h3><br><h3>Greetings from Hire360, Thank you for signing up to Hire360!</h3><br><h3>Regards,<br>Team Hire360</h3><br>";
                 // await _mailService.SendWelcomeEmailAsync(candidate.CandidateEmail, candidate.CandidateName);
                 await _mailService.SendEmailAsync(candidate.CandidateEmail, subject, body);
-                return CreatedAtAction("GetCandidateById", new { id = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
+                return CreatedAtAction("GetCandidateById", new { candidateId = candidate.CandidateId }, new { status = "success", data = candidate, message = "Candidate registration Successful" });
             }
             catch (System.Exception ex)
             {
