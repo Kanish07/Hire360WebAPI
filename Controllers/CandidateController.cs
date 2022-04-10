@@ -76,11 +76,11 @@ namespace Hire360WebAPI.Controllers
 
         // GET: api/Candidate/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Candidate>> GetCandidateById(Guid id)
+        public async Task<ActionResult<Candidate>> GetCandidateById(Guid candidateId)
         {
             try
             {
-                var candidate = await _context.Candidates.FindAsync(id);
+                var candidate = await _context.Candidates.FindAsync(candidateId);
 
                 if (candidate == null)
                 {
@@ -100,7 +100,7 @@ namespace Hire360WebAPI.Controllers
         // PUT: api/Candidate/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCandidateById(Guid id, Candidate candidate)
+        public async Task<IActionResult> UpdateCandidateById(Guid candidateId, Candidate candidate)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace Hire360WebAPI.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!CandidateExists(id))
+                if (!CandidateExists(candidateId))
                 {
                     return NotFound(new { status = "failed", message = "No candidate found" });
                 }
@@ -150,11 +150,11 @@ namespace Hire360WebAPI.Controllers
 
         // DELETE: api/Candidate/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCandidateById(Guid id)
+        public async Task<IActionResult> DeleteCandidateById(Guid candidateId)
         {
             try
             {
-                var candidate = await _context.Candidates.FindAsync(id);
+                var candidate = await _context.Candidates.FindAsync(candidateId);
                 if (candidate == null)
                 {
                     return NotFound(new { status = "failed", message = "Candidate id not found" });
@@ -175,7 +175,7 @@ namespace Hire360WebAPI.Controllers
 
         // File Upload
         [HttpPost("{id}"), DisableRequestSizeLimit]
-        public async Task<IActionResult> UploadResume(Guid id)
+        public async Task<IActionResult> UploadResume(Guid candidateId)
         {
             try
             {
@@ -187,7 +187,7 @@ namespace Hire360WebAPI.Controllers
                     string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
                     if (fileURL != null)
                     {
-                        var candidate = await _context.Candidates.FindAsync(id);
+                        var candidate = await _context.Candidates.FindAsync(candidateId);
                         candidate.CandidateResume = fileURL;
                         await _context.SaveChangesAsync();
                     }
@@ -206,7 +206,7 @@ namespace Hire360WebAPI.Controllers
 
         // File Upload
         [HttpPost("{id}"), DisableRequestSizeLimit]
-        public async Task<IActionResult> UploadProfilePicture(Guid id)
+        public async Task<IActionResult> UploadProfilePicture(Guid candidateId)
         {
             try
             {
@@ -218,7 +218,7 @@ namespace Hire360WebAPI.Controllers
                     string fileURL = await _azurestorage.UploadAsync(file.OpenReadStream(), fileName, file.ContentType);
                     if (fileURL != null)
                     {
-                        var candidate = await _context.Candidates.FindAsync(id);
+                        var candidate = await _context.Candidates.FindAsync(candidateId);
                         candidate.CandidatePhotoUrl = fileURL;
                         await _context.SaveChangesAsync();
                     }
@@ -238,17 +238,17 @@ namespace Hire360WebAPI.Controllers
         //Update Description
         [HttpGet("{id}")]
         [Authorize(Role.Candidate)]
-        public async Task<IActionResult> UpdateCandidateDescriptionById(Guid id, string description)
+        public async Task<IActionResult> UpdateCandidateDescriptionById(Guid candidateId, string description)
         {
             try
             {
-                var candidate = await _context.Candidates.FindAsync(id);
+                var candidate = await _context.Candidates.FindAsync(candidateId);
                 candidate.CandidateDescription = description;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
             {
-                if (!CandidateExists(id))
+                if (!CandidateExists(candidateId))
                 {
                     return NotFound(new { status = "failed", message = "No candidate found" });
                 }
@@ -262,9 +262,9 @@ namespace Hire360WebAPI.Controllers
             return Ok(new { status = "success", message = "Description updated" });
         }
 
-        private bool CandidateExists(Guid id)
+        private bool CandidateExists(Guid candidateId)
         {
-            return _context.Candidates.Any(e => e.CandidateId == id);
+            return _context.Candidates.Any(e => e.CandidateId == candidateId);
         }
     }
 }
