@@ -201,7 +201,7 @@ namespace Hire360WebAPI.Controllers
                 var roleArr = role == null || role == "" ? new string[100] : role.Split(',');
                 var low = salarylow == null || salarylow == "" ? 0 : int.Parse(salarylow);
                 var high = salaryhigh == null || salaryhigh == "" ? 999999999 : int.Parse(salaryhigh);
-                var pageNumber = (page - 1) * 5;
+                var pageNumber = (page - 1) * 10;
                 var job = new List<Job>();
                 var jobCount = 1;
 
@@ -209,23 +209,23 @@ namespace Hire360WebAPI.Controllers
                 {
                     if (city != null && city != "" && role != null && role != "")
                     {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity) && roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     }
                     else if (city != null && city != "")
                     {
-                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        job = await _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => cityArr.Contains(j.JobCity)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     }
                     else
                     {
-                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(5).ToListAsync();
+                        job = await _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Skip(pageNumber).Take(10).ToListAsync();
                         jobCount = _context.Jobs.Where(j => roleArr.Contains(j.JobTitle)).Where(j => j.Package >= low && j.Package <= high).Include(j => j.Hr).Count();
                     }
                 }
                 else
                 {
-                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Skip(pageNumber).Take(5).ToListAsync();
+                    job = await _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Skip(pageNumber).Take(10).ToListAsync();
                     jobCount = _context.Jobs.Include(j => j.Hr).Where(j => j.Package >= low && j.Package <= high).Count();
                 }
 
