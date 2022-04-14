@@ -264,6 +264,68 @@ namespace Hire360WebAPI.Controllers
             return Ok(new { status = "success", message = "Description updated" });
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendOtp(ForgotPassword model)
+        {
+            try
+            {
+                var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+                if (candidate == null) {
+                    return NotFound(new { message = "Account does not exist" });
+                } else {
+                    var candidateDetail = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+                    Random random = new Random();
+                    var otp = random.Next(1000, 9999);
+                    candidateDetail.Active = otp.ToString();
+                    await _context.SaveChangesAsync();
+                    var subject = $"OTP To Reset Password";
+                    var body = $"<h3>OTP for resetting your password is {otp}.</h3><br><h3>Regards,<br>Team Hire360</h3>";
+                    await _mailService.SendEmailAsync(model.Email, subject, body);
+                }
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+            return Ok(new { status = "success", message = "OTP Sent" });
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ForgotPassword model)
+        {
+            try
+            {
+                var candidate = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+                if (candidate == null) {
+                    return NotFound(new { message = "Account does not exist" });
+                } else {
+                    var candidateDetail = _context.Candidates.FirstOrDefault(x => x.CandidateEmail == model.Email);
+                    var otp = model.Otp;
+                    var activeOtp = candidate.Active;
+                    if(otp == activeOtp){
+                        var resetPassword = model.Password;
+                        resetPassword = BCrypt.Net.BCrypt.HashPassword(resetPassword);
+                        candidate.CandidatePassword = resetPassword;
+                        candidate.Active = "ACTIVE";
+                        await _context.SaveChangesAsync();
+                        var subject = $"Password Reset Successful!";
+                        var body = $"<h3>Password Reset Successful for your account.</h3><br><h3>Regards,<br>Team Hire360</h3>";
+                        await _mailService.SendEmailAsync(model.Email, subject, body);
+                    }
+                    else {
+                        return BadRequest(new { status="failed", message = "Wrong OTP"});
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+            return Ok(new { status = "success", message = "Password Reset Successful" });
+        }
+
         private bool CandidateExists(Guid candidateId)
         {
             return _context.Candidates.Any(e => e.CandidateId == candidateId);
